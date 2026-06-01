@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:switch="${order.status}">
+    <th:block th:case='RECEIVED'>
+        <span class="label label-info">Received</span>
+    </th:block>
+    <th:block th:case='PAID'>
+        <span class="label label-success">Paid</span>
+    </th:block>
+    <th:block th:case='READY'>
+        <span class="label label-success">Ready</span>
+    </th:block>
+    <th:block th:case='CANCELED'>
+        <span class="label label-danger">Canceled</span>
+    </th:block>
+</div>
+</body>
+</html>

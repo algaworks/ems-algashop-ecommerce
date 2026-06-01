@@ -1,0 +1,56 @@
+package com.algaworks.algashop.ecommerce.application.model.form;
+
+import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
+import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
+import com.algaworks.algashop.ecommerce.application.model.client.PersonalInfoModel;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CheckoutForm {
+
+	@NotNull
+	private PersonalInfoModel billingInfo;
+
+	@NotNull
+	private PersonalInfoModel shippingInfo;
+
+	private boolean sendToDifferentAddress;
+	
+	@NotNull
+	private PaymentMethod paymentMethod;
+
+	private String creditCardId;
+
+	private String creditCardToken;
+
+	public static CheckoutForm of(CustomerModel customerModel) {
+		if (customerModel == null) {
+			return new CheckoutForm();
+		}
+		AddressModel address = customerModel.getAddress();
+		PersonalInfoModel personalInfo = PersonalInfoModel.builder()
+				.fullName(customerModel.getFullName())
+				.document(customerModel.getDocument())
+				.phone(customerModel.getPhone())
+				.address(AddressModel.builder()
+						.street(address.getStreet())
+						.number(address.getNumber())
+						.complement(address.getComplement())
+						.neighborhood(address.getNeighborhood())
+						.city(address.getCity())
+						.state(address.getState())
+						.zipCode(address.getZipCode())
+						.build())
+				.build();
+		return CheckoutForm.builder()
+				.billingInfo(personalInfo)
+				.build();
+	}
+}

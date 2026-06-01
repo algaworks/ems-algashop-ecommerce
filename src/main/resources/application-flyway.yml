@@ -1,0 +1,8 @@
+spring:
+  flyway:
+    enabled: true
+    locations: ${FLYWAY_LOCATIONS}
+    cleanDisabled: true
+    url: ${FLYWAY_URL}
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}

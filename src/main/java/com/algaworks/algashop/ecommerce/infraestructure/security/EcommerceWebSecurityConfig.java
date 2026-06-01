@@ -1,0 +1,80 @@
+package com.algaworks.algashop.ecommerce.infraestructure.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
+@Configuration
+@EnableWebSecurity
+public class EcommerceWebSecurityConfig {
+
+	//todo rever
+//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/config/SecurityConfig.java
+//https://docs.spring.io/spring-security/reference/servlet/oauth2/login/advanced.html
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+//				.requestMatchers("/").permitAll()
+				.requestMatchers("/checkout/**").authenticated() //, "/my-account/**"
+				.requestMatchers("/shopping-cart/add/**").authenticated() //, "/my-account/**"
+				.requestMatchers("/my-account/orders/**").authenticated()
+				.requestMatchers("/my-account/details/**").authenticated()
+				.anyRequest().permitAll()
+			)
+//				.logout(l -> l.logoutSuccessUrl("/").logoutUrl("/logout"))
+// todo validar se precisa https://docs.spring.io/spring-security/reference/reactive/oauth2/login/logout.html
+//			.formLogin(f -> f.disable())
+			.oauth2Login(o -> o.userInfoEndpoint(withDefaults())
+				//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/web/AuthorizationController.java
+				.loginPage("/my-account") //http://algashop-ecommerce:9997/oauth2/authorization/oidc
+			).logout((logout) -> logout
+						.logoutUrl("/logout")
+						.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
+			);
+		return http.build();
+	}
+
+	private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
+		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+				new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+
+		// Sets the location that the End-User's User Agent will be redirected to
+		// after the logout has been performed at the Provider
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/logged-out");
+
+		return oidcLogoutSuccessHandler;
+	}
+
+//	@Bean
+//	public ClientRegistrationRepository clientRegistrationRepository() {
+//		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+//	}
+
+	@Bean
+	public OAuth2AuthorizedClientService authorizedClientService() {
+//		return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+		return new OAuth2AuthorizedClientServiceRedis();
+	}
+
+	@Bean
+	public OAuth2AuthorizedClientRepository authorizedClientRepository() { //J
+//		OAuth2AuthorizedClientService authorizedClientService
+		return new HttpSessionOAuth2AuthorizedClientRepository();
+//		return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
+//		return new JdbcOAuth2AuthorizedClientService(jdbcOperations, authorizedClientService);
+	}
+}

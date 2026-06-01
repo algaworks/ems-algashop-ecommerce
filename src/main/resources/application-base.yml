@@ -1,0 +1,29 @@
+server:
+  port: 9997
+
+spring:
+  application:
+    name: algashop-authorization-server
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc:
+            provider: algashop-auth
+            client-id: algashop-ecommerce-client
+            client-secret: ecommerce123
+            authorization-grant-type: authorization_code
+            scope:
+              - "openid"
+              - "read"
+              - "write"
+            client-name: algashop-integration-client
+          backend:
+            provider: algashop-auth
+            client-id: algashop-ecommerce-web-integration-client
+            client-secret: webintegration123
+            authorization-grant-type: client_credentials
+            scope:
+              - "read"
+              - "customers:create"
+            client-name: algashop-products-integration-client

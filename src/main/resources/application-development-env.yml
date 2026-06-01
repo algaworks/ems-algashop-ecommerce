@@ -1,0 +1,42 @@
+algashop:
+  api-url: http://api.algashop.local:9999
+  auth-with-alga-security-path: /oauth2/authorization/oidc
+  payment-provider-public-key: tDBmh0ZiDrmaZ8BVQD7i9UYdcj9KtZUk
+  payment-provider-credit-card-token-url: http://fastpay:9995/api/v1/tokenized-cards
+  authorization-server-url: http://auth.algashop.local:8081
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis123
+      database: 3
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc:
+            provider: algashop-auth
+            client-id: algashop-ecommerce-client
+            client-secret: ecommerce123
+            redirect-uri: http://algashop.local:9997/login/oauth2/code/oidc-client
+            authorization-grant-type: authorization_code
+            scope:
+              - "openid"
+              - "read"
+              - "write"
+            client-name: algashop-integration-client
+          backend:
+            provider: algashop-auth
+            client-id: algashop-ecommerce-web-integration-client
+            client-secret: webintegration123
+            authorization-grant-type: client_credentials
+            scope:
+              - "read"
+              - "customers:register"
+              - "customers"
+            client-name: algashop-products-integration-client
+        provider:
+          algashop-auth:
+            issuer-uri: http://auth.algashop.local:8081

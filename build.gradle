@@ -1,0 +1,87 @@
+buildscript {
+	dependencies { //necessário para o plugin
+		classpath 'org.flywaydb:flyway-core:10.14.0'
+		classpath 'org.flywaydb:flyway-database-postgresql:10.14.0'
+	}
+}
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.1'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.flywaydb.flyway' version '10.14.0'
+	id "org.sonarqube" version "5.0.0.4638"
+}
+
+sonar {
+  properties {
+    property 'sonar.projectKey', System.getenv('SONAR_PROJECT_KEY')
+    property 'sonar.projectName', 'AlgaShop Ecommerce WebApp'
+	property 'sonar.host.url', System.getenv('SONAR_HOST_URL')
+	property 'sonar.token',  System.getenv('SONAR_TOKEN')
+  }
+}
+
+group = 'com.algaworks.algashop'
+version = project.version ? project.version : '0.0.1-SNAPSHOT'
+
+ext {
+	set('springCloudAwsVersion', "3.2.0")
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
+	implementation 'com.amazonaws.secretsmanager:aws-secretsmanager-jdbc:2.0.2'
+	implementation 'org.apache.commons:commons-lang3:3.14.0'
+	runtimeOnly 'org.postgresql:postgresql'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+bootJar {
+	archiveFileName = 'algashop-ecommerce.jar'
+}
+
+jar {
+	enabled = false
+}
+
+tasks.register('dockerBuild', Exec) {
+	dependsOn("bootJar") //se depender de build rodara os testes
+	workingDir project.rootDir
+	commandLine 'docker', 'build', '.', '-t', 'algaworks/algashop-ecommerce:dev'
+}
