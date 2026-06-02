@@ -5,8 +5,11 @@
       xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:switch="${order.status}">
-    <th:block th:case='RECEIVED'>
-        <span class="label label-info">Received</span>
+    <th:block th:case='DRAFT'>
+        <span class="label label-default">Draft</span>
+    </th:block>
+    <th:block th:case='PLACED'>
+        <span class="label label-info">Placed</span>
     </th:block>
     <th:block th:case='PAID'>
         <span class="label label-success">Paid</span>

@@ -5,13 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckoutModel {
-	private String paymentMethod;
-	private String creditCardId;
-	private ShippingInputModel shipping;
-	private BillingModel billing;
+public class ShippingModel {
+	private BigDecimal cost;
+	private LocalDate expectedDate;
+	private RecipientModel recipient;
+	private AddressModel address;
 }

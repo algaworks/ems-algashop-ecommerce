@@ -14,11 +14,10 @@
         <div class="cart-list">
             <div class="product-widget" th:each="item: ${shoppingCart.items}">
                 <div class="product-img">
-                    <img th:if="${item.mainImage?.url != null}" th:src="${item.mainImage.url}" decoding="async">
-                    <img th:unless="${item.mainImage?.url != null}" th:src="@{/img/no-picture.png}" decoding="async">
+                    <img th:src="@{/img/no-picture.png}" decoding="async">
                 </div>
                 <div class="product-body">
-                    <h3 class="product-name"><a th:href="|/products/${item.slug}/${item.productId}|"
+                    <h3 class="product-name"><a th:href="|/products/${item.productId}/${item.productId}|"
                                                 th:text="${item.name}"></a></h3>
                     <h4 class="product-price"><span class="qty" th:text="|${item.quantity}x|">1x</span>
                         <th:block th:text="${#numbers.formatCurrency(item.price)}"></th:block>

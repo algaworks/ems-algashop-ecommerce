@@ -40,14 +40,17 @@ public class ProductFilter {
 	private int page = 0;
 
 	@Builder.Default
-	private String sort = SortType.CREATED_AT_DESC.getValue();
+	private SortType sort = SortType.ADDED_AT;
+
+	@Builder.Default
+	private Sort.Direction sortDirection = Sort.Direction.DESC;
 
 	public MultiValueMap<String, String> toQueryParams() {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
 		if (this.getCategoriesId() != null ) {
 			for (String id : this.getCategoriesId()) {
-				params.add("categoriesId", id.toString());
+				params.add("categoriesId", id);
 			}
 		}
 
@@ -68,8 +71,10 @@ public class ProductFilter {
 		}
 
 		if (this.getSort() != null) {
-			params.add("sort", this.getSort());
+			params.add("sortByProperty", this.getSort().name());
 		}
+
+		params.add("sortDirection", this.getSortDirection().name());
 
 		params.add("size", Integer.valueOf(this.getSize()).toString());
 		params.add("page", Integer.valueOf(this.getPage()).toString());
@@ -80,11 +85,10 @@ public class ProductFilter {
 	@Getter
 	@AllArgsConstructor
 	enum SortType {
-		CREATED_AT_DESC("createdAt,DESC"),
-		CREATED_AT_ASC("createdAt,ASC"),
-		PRICE_DESC("regularPrice,DESC"),
-		PRICE_ASC("regularPrice,ASC");
-		private final String value;
+		ADDED_AT("addedAt"),
+		SALE_PRICE("salePrice");
+
+		private final String propertyName;
 	}
 
 	public static ProductFilter of(Pageable pageable) {
@@ -97,7 +101,8 @@ public class ProductFilter {
 		//Apenas a primeira ordenação é considerada
 		if (iterator.hasNext()) {
 			Sort.Order order = iterator.next();
-			builder.sort(order.getProperty() + "," + order.getDirection());
+			builder.sort(SortType.valueOf(order.getProperty()));
+			builder.sortDirection(order.getDirection());
 		}
 
 		return builder.build();

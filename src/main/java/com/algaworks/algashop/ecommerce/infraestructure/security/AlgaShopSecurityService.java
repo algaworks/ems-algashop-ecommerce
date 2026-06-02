@@ -21,7 +21,7 @@ public class AlgaShopSecurityService {
 	@Nullable
 	public String getAuthenticationName() {
 		Optional<OAuth2AuthenticationToken> authentication = getAuthentication();
-		return authentication.map(oauth2Token -> (String) oauth2Token.getPrincipal().getAttribute("fullName")).orElse("guest");
+		return authentication.map(oauth2Token -> (String) oauth2Token.getPrincipal().getAttribute("name")).orElse("guest");
 	}
 
 	public boolean isAuthenticated() {

@@ -59,8 +59,27 @@ public class ProductCatalogController {
 				.toModelAndView();
 	}
 
+	@GetMapping("/products/{id}")
+	public ModelAndView getById(@PathVariable String id,
+	                            @RequestParam(value = "addedToCart", required = false) Boolean addedToCart,
+	                            RedirectAttributes redirectAttributes) {
+		ProductModel product;
+		try {
+			product = productClient.findById(id);
+			return new ModelAndView(String.format("redirect:/products/%s/%s", product.getSlug(), id));
+		} catch (HttpClientErrorException.NotFound e) {
+			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Product not found."));
+			return new ModelAndView("redirect:/products");
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger(
+					"An unknown error occurred while trying to load the product. Please try again later."));
+			return new ModelAndView("redirect:/products");
+		}
+	}
+
 	@GetMapping("/products/{slug}/{id}")
-	public ModelAndView getById(@PathVariable String slug, @PathVariable String id,
+	public ModelAndView getBySlugAndId(@PathVariable String slug, @PathVariable String id,
 								@RequestParam(value = "addedToCart", required = false) Boolean addedToCart,
 								RedirectAttributes redirectAttributes) {
 		var pageBuilder = ProductPageModel.builder();

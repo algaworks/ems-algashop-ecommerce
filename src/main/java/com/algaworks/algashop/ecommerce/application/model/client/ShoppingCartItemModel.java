@@ -5,18 +5,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShoppingCartItemModel {
-	private UUID productId;
+	private String id;
+	private String productId;
 	private String name;
-	private String slug;
 	private BigDecimal price;
 	private Integer quantity;
 	private BigDecimal totalAmount;
-	private Boolean inStock;
-	private ImageModel mainImage;
+	private Boolean available;
 }

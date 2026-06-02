@@ -13,8 +13,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,6 +33,8 @@ public class MyAddressController {
 		try {
 			CustomerModel customer = customerManagementAPIClient.getMyProfile();
 			editAddressForm = EditAddressForm.of(customer);
+		} catch (HttpClientErrorException.NotFound e) {
+			return new ModelAndView("redirect:/my-account/details");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -60,11 +65,10 @@ public class MyAddressController {
 		}
 
 		CustomerUpdateInput input = CustomerUpdateInput.builder()
-				.document(customer.getDocument())
-				.fullName(customer.getFullName())
+				.firstName(FullNameParser.split(customer.getFullName()).firstName())
+				.lastName(FullNameParser.split(customer.getFullName()).lastName())
 				.phone(customer.getPhone())
-				.birthDate(customer.getBirthDate())
-				.allowPromotionNotifications(customer.isAllowPromotionNotifications())
+				.promotionNotificationsAllowed(customer.isAllowPromotionNotifications())
 				.address(editAddressForm.toAddress())
 				.build();
 

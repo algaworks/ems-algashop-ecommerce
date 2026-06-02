@@ -177,11 +177,11 @@
     });
 
     $('.js-on-click-remove-item').on('click', function(){
-      let productId = $(this).data('product-id');
+      let itemId = $(this).data('item-id');
       let token = $("meta[name='_csrf']").attr("content");
       let fieldName = $("meta[name='_csrf_parameter_name']").attr("content");
       let request = {
-        url: "/shopping-cart/remove/" + productId,
+        url: "/shopping-cart/remove-item/" + itemId,
         method: "POST",
         data: {
             "_csrf": token

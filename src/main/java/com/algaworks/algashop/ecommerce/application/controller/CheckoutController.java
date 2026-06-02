@@ -6,7 +6,7 @@ import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.page.CheckoutPageModel;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
-import com.algaworks.algashop.ecommerce.application.session.ShoppingCartSession;
+import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ public class CheckoutController {
 	private final ShoppingCartService shoppingCartService;
 	private final CheckoutClient checkoutClient;
 	private final CustomerRestClient customerManagementAPIClient;
-	private final ShoppingCartSession shoppingCartSession;
 
 	@GetMapping("/checkout")
 	public ModelAndView checkout() {
@@ -70,29 +69,43 @@ public class CheckoutController {
 			return checkout(checkoutForm);
 		}
 
-		var inputBuilder = CheckoutModel.builder()
-				.billing(checkoutForm.getBillingInfo());
+		PersonalInfoModel shippingInfo = checkoutForm.isSendToDifferentAddress()
+				? checkoutForm.getShippingInfo()
+				: checkoutForm.getBillingInfo();
 
-		if (checkoutForm.isSendToDifferentAddress()) {
-			inputBuilder.shipping(checkoutForm.getShippingInfo());
-		} else {
-			inputBuilder.shipping(checkoutForm.getBillingInfo());
+		var billingName = FullNameParser.split(checkoutForm.getBillingInfo().getFullName());
+		var shippingName = FullNameParser.split(shippingInfo.getFullName());
+
+		String email = userDetails.getAttribute("email");
+		if (email == null || email.isBlank()) {
+			email = customerManagementAPIClient.getMyProfile().getEmail();
 		}
 
-		inputBuilder.payment(
-				PaymentInfo.builder()
-						.method(checkoutForm.getPaymentMethod().toString())
-						.creditCardId(checkoutForm.getCreditCardId())
-						.build()
-		);
+		CheckoutModel input = CheckoutModel.builder()
+				.paymentMethod(checkoutForm.getPaymentMethod().name())
+				.creditCardId(checkoutForm.getCreditCardId())
+				.shipping(ShippingInputModel.builder()
+						.recipient(RecipientModel.builder()
+								.firstName(shippingName.firstName())
+								.lastName(shippingName.lastName())
+								.document(shippingInfo.getDocument())
+								.phone(shippingInfo.getPhone())
+								.build())
+						.address(shippingInfo.getAddress())
+						.build())
+				.billing(BillingModel.builder()
+						.firstName(billingName.firstName())
+						.lastName(billingName.lastName())
+						.document(checkoutForm.getBillingInfo().getDocument())
+						.phone(checkoutForm.getBillingInfo().getPhone())
+						.email(email)
+						.address(checkoutForm.getBillingInfo().getAddress())
+						.build())
+				.build();
 
-		String customerId = userDetails.getAttribute("sub");
+		OrderModel checkout = checkoutClient.checkout(input);
 
-		inputBuilder.customerId(customerId);
-
-		CheckoutResponseModel checkout = checkoutClient.checkout(shoppingCartSession.getCurrentShoppingCartId(), inputBuilder.build());
-
-		return new ModelAndView("redirect:/my-account/orders/" + checkout.getOrderId());
+		return new ModelAndView("redirect:/my-account/orders/" + checkout.getId());
 	}
 
 }

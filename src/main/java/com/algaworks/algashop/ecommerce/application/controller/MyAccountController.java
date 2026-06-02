@@ -2,13 +2,12 @@ package com.algaworks.algashop.ecommerce.application.controller;
 
 import com.algaworks.algashop.ecommerce.application.client.*;
 import com.algaworks.algashop.ecommerce.application.exception.ErrorMessages;
-import com.algaworks.algashop.ecommerce.application.model.client.CustomerInput;
+import com.algaworks.algashop.ecommerce.application.model.client.AuthUserInput;
 import com.algaworks.algashop.ecommerce.application.model.filter.OrderFilter;
 import com.algaworks.algashop.ecommerce.application.model.form.NewCustomerForm;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.model.page.MyAccountPageModel;
 import com.algaworks.algashop.ecommerce.application.model.page.NewAccountPageModel;
-import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import com.algaworks.algashop.ecommerce.infraestructure.security.AlgaShopSecurityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 public class MyAccountController {
 
-	private final CustomerRestClient customerManagementAPIClient;
+	private final UserAPIClient userAPIClient;
 	private final OrderClient orderClient;
 	private final AlgaShopSecurityService algaShopSecurityService;
 
@@ -70,18 +69,14 @@ public class MyAccountController {
 			return newAccount(newCustomerForm);
 		}
 
-		CustomerInput customerInput = CustomerInput.builder()
-				.address(newCustomerForm.getAddress())
+		AuthUserInput userInput = AuthUserInput.builder()
+				.name(newCustomerForm.getFullName())
 				.email(newCustomerForm.getEmail())
-				.birthDate(newCustomerForm.getBirthDate())
-				.document(newCustomerForm.getDocument())
-				.fullName(newCustomerForm.getFullName())
-				.phone(newCustomerForm.getPhone())
-				.allowPromotionNotifications(newCustomerForm.isAllowPromotionNotifications())
+				.type("CUSTOMER")
 				.build();
 
 		try {
-			customerManagementAPIClient.create(customerInput);
+			userAPIClient.create(userInput);
 		} catch (Exception e) {
 			log.error("Error when trying to create customer.",e);
 			bindingResult.addError(new ObjectError("newCustomerForm", ErrorMessages.END_USER_GENERIC_ERROR_MESSAGE));
@@ -89,7 +84,7 @@ public class MyAccountController {
 			return newAccount(newCustomerForm);
 		}
 
-		redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.success("Success! Your access password will be sent via email."));
+		redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.success("Success! Check your email to activate access and then log in."));
 		return new ModelAndView("redirect:/my-account");
 	}
 }

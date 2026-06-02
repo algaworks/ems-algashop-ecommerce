@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckoutModel {
-	private String paymentMethod;
-	private String creditCardId;
-	private ShippingInputModel shipping;
-	private BillingModel billing;
+public class AuthUserInput {
+	private String name;
+	private String email;
+	private String type;
 }

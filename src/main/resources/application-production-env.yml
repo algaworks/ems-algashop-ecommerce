@@ -1,6 +1,6 @@
 algashop:
   api-url: ${aws.params.api.url}
-  auth-with-alga-security-path: /oauth2/authorization/oidc
+  auth-with-alga-security-path: /oauth2/authorization/algashop-ecommerce-web
   payment-provider-public-key: ${aws.params.payment.public-key}
   payment-provider-credit-card-token-url: ${aws.params.payment.url}
   authorization-server-url: ${aws.shared.auth.issuer-uri}
@@ -41,24 +41,33 @@ spring:
         registration:
           oidc:
             provider: algashop-auth
-            client-id: ${aws.params.oauth2.oidc.client-id}
+            client-id: algashop-ecommerce-web
             client-secret: ${aws.params.oauth2.oidc.client-secret}
             redirect-uri: ${aws.params.oauth2.oidc.redirect-url}
             authorization-grant-type: authorization_code
             scope:
               - "openid"
-              - "read"
-              - "write"
-            client-name: algashop-integration-client
+              - "orders:read"
+              - "orders:write"
+              - "customers:read"
+              - "customers:write"
+              - "shopping-carts:read"
+              - "shopping-carts:write"
+              - "credit-cards:read"
+              - "credit-cards:write"
+              - "invoices:read"
+            client-name: algashop-ecommerce-web
           backend:
             provider: algashop-auth
-            client-id: ${aws.params.oauth2.backend.client-id}
+            client-id: algashop-ecommerce-m2m
             client-secret: ${aws.params.oauth2.backend.client-secret}
             authorization-grant-type: client_credentials
             scope:
-              - "read"
-              - "customers:create"
-            client-name: algashop-products-integration-client
+              - "products:read"
+              - "categories:read"
+              - "users:write"
+              - "shipping-costs:preview"
+            client-name: algashop-ecommerce-m2m
         provider:
           algashop-auth:
             issuer-uri: ${aws.shared.auth.issuer-uri}

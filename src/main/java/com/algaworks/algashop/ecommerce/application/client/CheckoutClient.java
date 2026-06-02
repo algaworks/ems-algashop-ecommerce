@@ -1,7 +1,7 @@
 package com.algaworks.algashop.ecommerce.application.client;
 
 import com.algaworks.algashop.ecommerce.application.model.client.CheckoutModel;
-import com.algaworks.algashop.ecommerce.application.model.client.CheckoutResponseModel;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -23,13 +23,14 @@ public class CheckoutClient {
 		this.userAuthenticatedRestClient = userAuthenticatedRestClient;
 	}
 
-	public CheckoutResponseModel checkout(String shoppingCartId, CheckoutModel checkoutInput) {
-		ResponseEntity<CheckoutResponseModel> responseEntity = userAuthenticatedRestClient.post()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/"+shoppingCartId+"/checkout"))
+	public OrderModel checkout(CheckoutModel checkoutInput) {
+		ResponseEntity<OrderModel> responseEntity = userAuthenticatedRestClient.post()
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/orders"))
 				.body(checkoutInput)
 				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.valueOf("application/vnd.order-with-shopping-cart.v1+json"))
 				.retrieve()
-				.toEntity(CheckoutResponseModel.class);
+				.toEntity(OrderModel.class);
 
 		return responseEntity.getBody();
 	}

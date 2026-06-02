@@ -57,9 +57,9 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
 	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
-	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
-	implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
-	implementation 'com.amazonaws.secretsmanager:aws-secretsmanager-jdbc:2.0.2'
+//	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
+//	implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
+//	implementation 'com.amazonaws.secretsmanager:aws-secretsmanager-jdbc:2.0.2'
 	implementation 'org.apache.commons:commons-lang3:3.14.0'
 	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'

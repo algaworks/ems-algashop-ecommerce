@@ -18,21 +18,18 @@ public class CustomerRestClient {
 
 	private final EcommerceProperties properties;
 	private final RestClient userAuthenticatedRestClient;
-	private final RestClient unatenticatedRestClient;
 
 	public CustomerRestClient(EcommerceProperties properties,
-							  @Qualifier("userAuthenticatedRestClient") RestClient userAuthenticatedRestClient,
-							  @Qualifier("restClient") RestClient unatenticatedRestClient) {
+							  @Qualifier("userAuthenticatedRestClient") RestClient userAuthenticatedRestClient) {
 		this.properties = properties;
 		this.userAuthenticatedRestClient = userAuthenticatedRestClient;
-		this.unatenticatedRestClient = unatenticatedRestClient;
 	}
 
-	public CustomerModel create(CustomerInput customerInput) {
+	public CustomerModel createMyProfile(CustomerInput customerInput) {
 		try {
 			log.info("Create customer:\n" + customerInput.toString() + "\n");
-			ResponseEntity<CustomerModel> responseEntity = unatenticatedRestClient.post()
-					.uri(URI.create(properties.getApiUrl() + "/api/v1/customers"))
+			ResponseEntity<CustomerModel> responseEntity = userAuthenticatedRestClient.post()
+					.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me"))
 					.body(customerInput)
 					.accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -67,25 +64,5 @@ public class CustomerRestClient {
 				.toEntity(CustomerModel.class);
 
 		return responseEntity.getBody();
-	}
-
-	public void updateMyEmail(CustomerEmailInput input) {
-		userAuthenticatedRestClient.put()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/email"))
-				.body(input)
-				.accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON)
-				.retrieve()
-				.toEntity(Void.class);
-	}
-
-	public void updateMyPassword(CustomerPasswordInput input) {
-		userAuthenticatedRestClient.put()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/password"))
-				.body(input)
-				.accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON)
-				.retrieve()
-				.toEntity(Void.class);
 	}
 }

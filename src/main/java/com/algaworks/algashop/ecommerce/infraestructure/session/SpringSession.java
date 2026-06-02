@@ -6,8 +6,8 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 //@EnableJdbcHttpSession
 //@EnableJdbcRepositories
-@Configuration
-@EnableRedisHttpSession
+//@Configuration
+//@EnableRedisHttpSession
 public class SpringSession {
 	//todo redis config
 	//save all, tokens, user session

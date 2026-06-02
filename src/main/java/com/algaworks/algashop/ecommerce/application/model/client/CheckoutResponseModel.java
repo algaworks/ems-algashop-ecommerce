@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class CheckoutResponseModel {
-	private String orderId;
+	private String id;
 }

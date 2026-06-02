@@ -40,7 +40,7 @@ public class EcommerceWebSecurityConfig {
 //			.formLogin(f -> f.disable())
 			.oauth2Login(o -> o.userInfoEndpoint(withDefaults())
 				//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/web/AuthorizationController.java
-				.loginPage("/my-account") //http://algashop-ecommerce:9997/oauth2/authorization/oidc
+				.loginPage("/my-account") //http://algashop-ecommerce:9080/oauth2/authorization/oidc
 			).logout((logout) -> logout
 						.logoutUrl("/logout")
 						.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))

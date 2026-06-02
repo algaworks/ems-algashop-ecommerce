@@ -12,12 +12,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CustomerInput {
-	private String fullName;
+	private String firstName;
+	private String lastName;
 	private String email;
 	private String phone;
 	private LocalDate birthDate;
 	private String document;
-	private boolean allowPromotionNotifications;
+	private boolean promotionNotificationsAllowed;
 	private AddressModel address;
 
 }

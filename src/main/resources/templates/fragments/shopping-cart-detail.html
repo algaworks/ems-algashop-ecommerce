@@ -42,11 +42,10 @@
                                     <tr th:each="item: ${shoppingCart.items}">
                                         <th scope="row" class="border-0">
                                             <div class="p-2 shopping-cart-item-table-head">
-                                                <img th:if="${item.mainImage?.url != null}" th:src="${item.mainImage.url}" decoding="async" width="70" class="img-fluid rounded shadow-sm">
-                                                <img th:unless="${item.mainImage?.url != null}" th:src="@{/img/no-picture.png}" decoding="async" width="70" class="img-fluid rounded shadow-sm">
+                                                <img th:src="@{/img/no-picture.png}" decoding="async" width="70" class="img-fluid rounded shadow-sm">
                                                 <div class="ml-3 d-inline-block align-middle">
                                                     <h5 class="mb-0">
-                                                        <a th:href="|/products/${item.slug}/${item.productId}|"
+                                                        <a th:href="|/products/${item.productId}|"
                                                            th:text="${item.name}" class="text-dark d-inline-block align-middle">PC</a>
                                                     </h5>
 <!--                                                    <span class="text-muted font-weight-normal font-italic d-block">Category: Watches</span>-->
@@ -56,7 +55,7 @@
                                         <td class="border-0 align-middle"><strong th:text="${#numbers.formatCurrency(item.price)}">$79,00</strong></td>
                                         <td class="border-0 align-middle"><strong th:text="${item.quantity}">3</strong></td>
                                         <td class="border-0 align-middle">
-                                            <button class="text-dark js-on-click-remove-item" th:data-product-id="${item.productId}"><i class="fa fa-trash"></i></button>
+                                            <button class="text-dark js-on-click-remove-item" th:data-item-id="${item.id}"><i class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     </tbody>

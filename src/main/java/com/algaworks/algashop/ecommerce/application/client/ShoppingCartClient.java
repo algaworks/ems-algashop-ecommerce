@@ -23,52 +23,40 @@ public class ShoppingCartClient {
 
 	public ShoppingCartModel getCurrentShoppingCart() {
 		return restClient.get()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/current"))
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart"))
 				.accept(MediaType.APPLICATION_JSON)
 				.header("Cache-Control", "no-cache")
 				.retrieve()
 				.toEntity(ShoppingCartModel.class).getBody();
 	}
 
-	public ShoppingCartModel getShoppingCart(String shoppingCartId) {
+	public ShoppingCartItemListModel getShoppingCartItems() {
 		return restClient.get()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/"+shoppingCartId))
-				.accept(MediaType.APPLICATION_JSON)
-				.header("Cache-Control", "no-cache")
-				.retrieve()
-				.toEntity(ShoppingCartModel.class).getBody();
-	}
-
-	public ShoppingCartItemListModel getShoppingCartItems(String shoppingCartId) {
-		return restClient.get()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/"+shoppingCartId+"/items"))
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart/items"))
 				.accept(MediaType.APPLICATION_JSON)
 				.retrieve()
 				.toEntity(ShoppingCartItemListModel.class).getBody();
 	}
 
-	public void addItem(String shoppingCartId, ShoppingCartItemInput input) {
+	public void addItem(ShoppingCartItemInput input) {
 		restClient.post()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/"+shoppingCartId+"/items"))
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart/items"))
 				.body(input)
 				.accept(MediaType.APPLICATION_JSON)
 				.retrieve().toBodilessEntity();
 	}
 
-	public void removeItem(String shoppingCartId, String productId) {
+	public void removeItem(String itemId) {
 		restClient.delete()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts/"+shoppingCartId+"/items/" + productId))
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart/items/" + itemId))
 				.accept(MediaType.APPLICATION_JSON)
 				.retrieve().toBodilessEntity();
 	}
 
-	public ShoppingCartModel create(ShoppingCartInput input) {
-		return restClient.post()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/shopping-carts"))
-				.body(input)
+	public void empty() {
+		restClient.delete()
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart/items"))
 				.accept(MediaType.APPLICATION_JSON)
-				.retrieve()
-				.toEntity(ShoppingCartModel.class)
-				.getBody();
+				.retrieve().toBodilessEntity();
 	}
 }

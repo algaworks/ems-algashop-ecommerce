@@ -11,7 +11,7 @@ import java.util.UUID;
 public class ShoppingCartModel {
 	private String id;
 	private String customerId;
-	private Integer totalItems;
+	private Integer totalItems = 0;
 	private BigDecimal totalAmount = BigDecimal.ZERO;
 	private List<ShoppingCartItemModel> items = new ArrayList<>();
 }

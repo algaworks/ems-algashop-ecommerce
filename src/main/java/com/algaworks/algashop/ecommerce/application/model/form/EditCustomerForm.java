@@ -1,5 +1,6 @@
 package com.algaworks.algashop.ecommerce.application.model.form;
 
+import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,9 @@ public class EditCustomerForm {
 	@NotNull
 	private boolean allowPromotionNotifications;
 
+	@NotNull
+	private AddressModel address;
+
 	public static EditCustomerForm of(CustomerModel customer) {
 		return EditCustomerForm.builder()
 				.document(customer.getDocument())
@@ -41,6 +45,7 @@ public class EditCustomerForm {
 				.phone(customer.getPhone())
 				.fullName(customer.getFullName())
 				.allowPromotionNotifications(customer.isAllowPromotionNotifications())
+				.address(customer.getAddress())
 				.build();
 	}
 }

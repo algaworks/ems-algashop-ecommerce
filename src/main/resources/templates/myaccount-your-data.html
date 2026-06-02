@@ -56,7 +56,12 @@
                     <!-- /store products -->
                     <div class="row">
                         <th:block th:insert="~{fragments/messages-by-type.html}"></th:block>
-                        <div th:if="${customer != null}" class="col-lg-6 col-sm-12">
+                        <div th:if="${customerProfileMissing}" class="col-lg-12 col-sm-12">
+                            <div class="alert alert-info" role="alert">
+                                Complete your profile details to start shopping.
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12">
                             <div class="order-details">
                                 <h3>Account details</h3>
                                 <form th:action="|/my-account/details|" method="post" style="margin-bottom: 2em;" th:object="${customerForm}">
@@ -73,6 +78,27 @@
                                         <input class="input" data-mask="000-00-000" type="text" th:field="*{document}" th:errorclass="error" placeholder="Document" required>
                                     </div>
                                     <div class="form-group">
+                                        <input class="input" data-mask="00000" type="text" th:field="*{address.zipCode}" th:errorclass="error" placeholder="Zipcode" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.street}" th:errorclass="error" placeholder="Street" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.number}" th:errorclass="error" placeholder="Number" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.complement}" th:errorclass="error" placeholder="Complement">
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.neighborhood}" th:errorclass="error" placeholder="Neighborhood" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.state}" th:errorclass="error" placeholder="State" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="input" type="text" th:field="*{address.city}" th:errorclass="error" placeholder="City" required>
+                                    </div>
+                                    <div class="form-group">
                                         <div class="input-checkbox">
                                             <input type="checkbox" id="promoAcc"
                                                    th:checked="*{allowPromotionNotifications}" name="allowPromotionNotifications">
@@ -86,29 +112,12 @@
                                 </form>
                             </div>
                         </div>
-                        <div th:if="${customer != null}" class="col-lg-6 col-sm-12" style="margin-bottom: 2em;">
-                            <div class="order-details">
-                                <h3>Change email</h3>
-                                <form th:action="|/my-account/details/email|" method="post">
-                                    <p th:text="|Current email: ${customer.email}|"></p>
-                                    <div class="form-group">
-                                        <input class="input" type="email" name="email" placeholder="New email" required>
-                                    </div>
-                                    <button type="submit" class="primary-btn order-submit">Save</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div th:if="${customer != null}" class="col-lg-6 col-sm-12" style="margin-bottom: 2em;">
+                        <div class="col-lg-6 col-sm-12" style="margin-bottom: 2em;">
                             <div class="order-details">
                                 <h3>Change password</h3>
                                 <form th:action="|/my-account/details/password|" method="post">
-                                    <div class="form-group">
-                                        <input class="input" type="password" name="oldPassword" placeholder="Old password" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <input class="input" type="password" name="newPassword" placeholder="New password" required>
-                                    </div>
-                                    <button type="submit" class="primary-btn order-submit">Save</button>
+                                    <p>We will send password change instructions to your registered e-mail.</p>
+                                    <button type="submit" class="primary-btn order-submit">Request password change</button>
                                 </form>
                             </div>
                         </div>

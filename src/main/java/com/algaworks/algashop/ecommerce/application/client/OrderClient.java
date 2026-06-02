@@ -24,20 +24,49 @@ public class OrderClient {
 	}
 
 	public OrderModelPage getOrders(OrderFilter orderFilter) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl() + "/api/v1/orders")
-				.queryParam("status", orderFilter.getStatus())
-				.queryParam("orderedAtFrom", orderFilter.getOrderedAtFrom())
-				.queryParam("orderedAtTo", orderFilter.getOrderedAtTo())
-				.queryParam("totalValueFrom", orderFilter.getTotalValueFrom())
-				.queryParam("totalValueTo", orderFilter.getTotalValueTo())
-				.queryParam("paymentMethod", orderFilter.getPaymentMethod())
-				.queryParam("code", orderFilter.getCode())
-				.queryParam("size", orderFilter.getSize())
-				.queryParam("page", orderFilter.getPage())
-				.queryParam("direction", orderFilter.getDirection())
-				.queryParam("sort", orderFilter.getSort())
-				.build()
-				.toUri();
+		var builder = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl() + "/api/v1/customers/me/orders");
+
+		if (orderFilter.getStatus() != null) {
+			builder.queryParam("status", orderFilter.getStatus());
+		}
+
+		if (orderFilter.getPlacedAtFrom() != null) {
+			builder.queryParam("placedAtFrom", orderFilter.getPlacedAtFrom());
+		}
+
+		if (orderFilter.getPlacedAtTo() != null) {
+			builder.queryParam("placedAtTo", orderFilter.getPlacedAtTo());
+		}
+
+		if (orderFilter.getTotalAmountFrom() != null) {
+			builder.queryParam("totalAmountFrom", orderFilter.getTotalAmountFrom());
+		}
+
+		if (orderFilter.getTotalAmountTo() != null) {
+			builder.queryParam("totalAmountTo", orderFilter.getTotalAmountTo());
+		}
+
+		if (orderFilter.getOrderId() != null) {
+			builder.queryParam("orderId", orderFilter.getOrderId());
+		}
+
+		if (orderFilter.getSize() > 0) {
+			builder.queryParam("size", orderFilter.getSize());
+		}
+
+		if (orderFilter.getPage() >= 0) {
+			builder.queryParam("page", orderFilter.getPage());
+		}
+
+		if (orderFilter.getSortDirection() != null) {
+			builder.queryParam("sortDirection", orderFilter.getSortDirection());
+		}
+
+		if (orderFilter.getSort() != null) {
+			builder.queryParam("sortByProperty", orderFilter.getSort());
+		}
+
+		URI uri = builder.build().toUri();
 
 		var responseEntity = userAuthenticatedRestClient.get()
 				.uri(uri)
@@ -50,7 +79,7 @@ public class OrderClient {
 
 	public OrderModel getOrder(String orderCode) {
 		var responseEntity = userAuthenticatedRestClient.get()
-				.uri(URI.create(properties.getApiUrl() + "/api/v1/orders/"+orderCode))
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/orders/" + orderCode))
 				.accept(MediaType.APPLICATION_JSON)
 				.retrieve()
 				.toEntity(OrderModel.class);

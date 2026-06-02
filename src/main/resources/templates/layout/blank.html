@@ -132,7 +132,7 @@
 					<ul class="main-nav nav navbar-nav">
 						<li><a href="/">Home</a></li>
 						<li><a href="/products?">Categories</a></li>
-						<li><a href="/products?onSale=true">Top Deals</a></li>
+						<li><a href="/products?hasDiscount=true">Top Deals</a></li>
 						<li th:each="category : ${@menuService.loadCategories()}">
 							<a th:href="|/products?categoriesId=${category.id}" th:text="${category.name}">Laptops</a>
 						</li>
@@ -191,7 +191,7 @@
 								<h3 class="footer-title">Categories</h3>
 								<ul class="footer-links">
 									<li><a href="/">Home</a></li>
-									<li><a href="/products?deals=true">Deals</a></li>
+									<li><a href="/products?hasDiscount=true">Deals</a></li>
 									<li><a href="/products">Categories</a></li> <!--todo /categories/x -->
 									<li th:each="category : ${@menuService.loadCategories()}"><a th:href="|/categories/${category.slug}-${category.id}|" th:text="${category.name}">Laptops</a></li>
 								</ul>

@@ -1,6 +1,6 @@
 algashop:
   api-url: http://algashop-ecommerce:9999
-  auth-with-alga-security-path: /oauth2/authorization/oidc
+  auth-with-alga-security-path: /oauth2/authorization/algashop-ecommerce-web
   payment-provider-public-key: tDBmh0ZiDrmaZ8BVQD7i9UYdcj9KtZUk
   payment-provider-credit-card-token-url: http://fastpay:9995/api/v1/tokenized-cards
   authorization-server-url: http://algashop-authorization-server:8081
@@ -16,26 +16,35 @@ spring:
     oauth2:
       client:
         registration:
-          oidc:
+          algashop-ecommerce-web:
             provider: algashop-auth
-            client-id: algashop-ecommerce-client
-            client-secret: ecommerce123
-            redirect-uri: http://algashop.local:9997/login/oauth2/code/oidc-client
+            client-id: algashop-ecommerce-web
+            client-secret: ${ALGASHOP_ECOMMERCE_WEB_CLIENT_SECRET:ecommerce123}
+            redirect-uri: http://algashop.local:9080/login/oauth2/code/algashop-ecommerce-web
             authorization-grant-type: authorization_code
             scope:
               - "openid"
-              - "read"
-              - "write"
-            client-name: algashop-integration-client
+              - "orders:read"
+              - "orders:write"
+              - "customers:read"
+              - "customers:write"
+              - "shopping-carts:read"
+              - "shopping-carts:write"
+              - "credit-cards:read"
+              - "credit-cards:write"
+              - "invoices:read"
+            client-name: algashop-ecommerce-web
           backend:
             provider: algashop-auth
-            client-id: algashop-ecommerce-web-integration-client
-            client-secret: webintegration123
+            client-id: algashop-ecommerce-m2m
+            client-secret: ${ALGASHOP_ECOMMERCE_M2M_CLIENT_SECRET:webintegration123}
             authorization-grant-type: client_credentials
             scope:
-              - "read"
-              - "customers:create"
-            client-name: algashop-products-integration-client
+              - "products:read"
+              - "categories:read"
+              - "users:write"
+              - "shipping-costs:preview"
+            client-name: algashop-ecommerce-m2m
         provider:
           algashop-auth:
             issuer-uri: http://auth.algashop.local:8081
