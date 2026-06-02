@@ -1,6 +1,9 @@
 package com.algaworks.algashop.ecommerce.application.model.filter;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,11 +42,12 @@ public class ProductFilter {
 	@Builder.Default
 	private int page = 0;
 
-	@Builder.Default
-	private SortType sort = SortType.ADDED_AT;
+	private Sort sort;
 
-	@Builder.Default
-	private Sort.Direction sortDirection = Sort.Direction.DESC;
+	public enum Property {
+		ADDED_AT,
+		SALE_PRICE
+	}
 
 	public MultiValueMap<String, String> toQueryParams() {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -70,11 +74,11 @@ public class ProductFilter {
 			params.add("priceTo", this.getPriceTo().toString());
 		}
 
-		if (this.getSort() != null) {
-			params.add("sortByProperty", this.getSort().name());
+		if (this.getSort() != null && this.getSort().iterator().hasNext()) {
+			Sort.Order currentSort = this.getSort().iterator().next();
+			params.add("sortByProperty", currentSort.getProperty());
+			params.add("sortDirection", currentSort.getDirection().name());
 		}
-
-		params.add("sortDirection", this.getSortDirection().name());
 
 		params.add("size", Integer.valueOf(this.getSize()).toString());
 		params.add("page", Integer.valueOf(this.getPage()).toString());
@@ -82,29 +86,4 @@ public class ProductFilter {
 		return params;
 	}
 
-	@Getter
-	@AllArgsConstructor
-	enum SortType {
-		ADDED_AT("addedAt"),
-		SALE_PRICE("salePrice");
-
-		private final String propertyName;
-	}
-
-	public static ProductFilter of(Pageable pageable) {
-		ProductFilter.ProductFilterBuilder builder = ProductFilter.builder()
-				.page(pageable.getPageNumber())
-				.size(pageable.getPageSize());
-
-		Iterator<Sort.Order> iterator = pageable.getSort().stream().iterator();
-
-		//Apenas a primeira ordenação é considerada
-		if (iterator.hasNext()) {
-			Sort.Order order = iterator.next();
-			builder.sort(SortType.valueOf(order.getProperty()));
-			builder.sortDirection(order.getDirection());
-		}
-
-		return builder.build();
-	}
 }
