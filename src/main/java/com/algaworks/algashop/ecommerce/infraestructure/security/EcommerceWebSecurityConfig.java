@@ -33,6 +33,8 @@ public class EcommerceWebSecurityConfig {
 				.requestMatchers("/shopping-cart/add/**").authenticated() //, "/my-account/**"
 				.requestMatchers("/my-account/orders/**").authenticated()
 				.requestMatchers("/my-account/details/**").authenticated()
+				.requestMatchers("/my-account/address", "/my-account/address/**").authenticated()
+				.requestMatchers("/my-account/complete-your-profile", "/my-account/complete-your-profile/**").authenticated()
 				.anyRequest().permitAll()
 			)
 //				.logout(l -> l.logoutSuccessUrl("/").logoutUrl("/logout"))

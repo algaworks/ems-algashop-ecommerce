@@ -34,7 +34,7 @@ public class MyAddressController {
 			CustomerModel customer = customerManagementAPIClient.getMyProfile();
 			editAddressForm = EditAddressForm.of(customer);
 		} catch (HttpClientErrorException.NotFound e) {
-			return new ModelAndView("redirect:/my-account/details");
+			return new ModelAndView("redirect:/my-account/complete-your-profile");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
