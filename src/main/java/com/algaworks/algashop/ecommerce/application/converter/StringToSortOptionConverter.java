@@ -1,6 +1,5 @@
 package com.algaworks.algashop.ecommerce.application.converter;
 
-import com.algaworks.algashop.ecommerce.application.model.filter.SortOption;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
