@@ -34,6 +34,7 @@ public class EcommerceWebSecurityConfig {
 				.requestMatchers("/my-account/orders/**").authenticated()
 				.requestMatchers("/my-account/details/**").authenticated()
 				.requestMatchers("/my-account/address", "/my-account/address/**").authenticated()
+				.requestMatchers("/my-account/credit-cards", "/my-account/credit-cards/**").authenticated()
 				.requestMatchers("/my-account/complete-your-profile", "/my-account/complete-your-profile/**").authenticated()
 				.anyRequest().permitAll()
 			)

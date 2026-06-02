@@ -10,6 +10,7 @@
 
 		<meta th:name="_csrf" th:content="${_csrf.token}"/>
 		<meta th:name="_csrf_parameter_name" th:content="${_csrf.parameterName}"/>
+		<meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
 		<title th:if="${pageTitle != null}" th:text="|AlgaShop - ${pageTitle}|">AlgaShop</title>
 		<title th:if="${pageTitle == null}">AlgaShop</title>

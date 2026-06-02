@@ -117,6 +117,11 @@ ul, ol {
   color: #FFF;
 }
 
+.primary-btn.compact-btn {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
 /*----------------------------*\
 	Inputs
 \*----------------------------*/

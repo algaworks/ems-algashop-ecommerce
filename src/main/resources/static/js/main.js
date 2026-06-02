@@ -203,49 +203,148 @@
 //         }
 //    });
 
-    function generateToken() {
-        let request = {
-            number: $('#cardForm').find('input[name="cardNumber"]').val(),
-            holderName: $('#cardForm').find('input[name="holderName"]').val(),
-            holderDocument: $('#cardForm').find('input[name="holderName"]').val(),
-            expirationDate: $('#cardForm').find('input[name="cardExpiration"]').val(),
-            cvv: $('#cardForm').find('input[name="CVV"]').val()
+    function escapeHtml(value) {
+        return $('<div>').text(value == null ? '' : value).html();
+    }
+
+    function creditCardLabel(creditCard) {
+        let brand = creditCard.brand ? creditCard.brand : 'Credit card';
+        return brand + ' ****-' + creditCard.lastNumbers + ' - ' + creditCard.expMonth + '/' + creditCard.expYear;
+    }
+
+    function renderCheckoutCreditCards(creditCards, selectedCreditCardId) {
+        let html = '<option value="">Choose a credit card</option>';
+        for (let creditCard of creditCards) {
+            let selected = creditCard.id == selectedCreditCardId ? ' selected' : '';
+            html += '<option value="' + escapeHtml(creditCard.id) + '"' + selected + '>' + escapeHtml(creditCardLabel(creditCard)) + '</option>';
+        }
+        return html;
+    }
+
+    function renderAccountCreditCards(creditCards) {
+        let html = '';
+        for (let creditCard of creditCards) {
+            let brand = creditCard.brand || 'Credit card';
+            html += '<tr class="js-credit-card-item">';
+            html += '<th scope="row" class="border-0">';
+            html += '<div class="p-2 shopping-cart-item-table-head">';
+            html += '<div class="ml-3 d-inline-block align-middle">';
+            html += '<h5 class="mb-0"><span class="text-dark d-inline-block align-middle">' + escapeHtml(brand) + ' ****-' + escapeHtml(creditCard.lastNumbers) + '</span></h5>';
+            html += '</div>';
+            html += '</div>';
+            html += '</th>';
+            html += '<td class="border-0 align-middle">' + escapeHtml(creditCard.expMonth) + '/' + escapeHtml(creditCard.expYear) + '</td>';
+            html += '<td class="border-0 align-middle">';
+            html += '<button class="text-dark js-on-click-remove-credit-card" data-credit-card-id="' + escapeHtml(creditCard.id) + '"><i class="fa fa-trash"></i></button>';
+            html += '</td>';
+            html += '</tr>';
+        }
+        return html;
+    }
+
+    function refreshCreditCardLists(selectedCreditCardId) {
+        if ($('.js-credit-card-list').length == 0) {
+            return;
         }
 
-        let token = $('#publicCardToken').val();
-        let url = $('#cardForm').attr('action');
-        let response = {};
-
         $.ajax({
-            contentType : "application/json",
-            async: false, //Força esperar o request terminar para lançar o submit do form
-            data: JSON.stringify(
-                request
-            ),
-            headers: {
-                'Authorization': token
-            },
-            dataType: "json",
-            converters: {
-                'text json': true
-            },
-            url:  url,
-            type: "POST",
-            beforeSend: function(xhr) {
-            },
-            error: function (data) {
-                response.fail = true;
-                response.userMessage = 'Cartão inválido, verifique as informações e tente novamente.';
-             },
-            success: function(data) {
-                let tokenizedCard = JSON.parse(data).tokenizedCard;
-                response.fail = false;
-                response.tokenizedCard = tokenizedCard;
-            }
+            url: '/my-account/credit-cards/list',
+            type: 'GET',
+            dataType: 'json'
+        }).done(function(creditCards) {
+            $('.js-credit-card-empty').toggle(creditCards.length == 0);
+            $('.js-credit-card-list').each(function() {
+                let mode = $(this).data('mode');
+                if (mode == 'checkout') {
+                    $(this).html(renderCheckoutCreditCards(creditCards, selectedCreditCardId));
+                } else {
+                    $(this).html(renderAccountCreditCards(creditCards));
+                }
+            });
         });
-
-        return response;
     }
+
+    $(document).on('click', '.js-on-click-remove-credit-card', function() {
+        let creditCardId = $(this).data('credit-card-id');
+        let token = $("meta[name='_csrf']").attr("content");
+        let request = {
+            url: "/my-account/credit-cards/remove/" + creditCardId,
+            method: "POST",
+            data: {
+                "_csrf": token
+            }
+        };
+
+        $.ajax(request)
+            .done(function() {
+                refreshCreditCardLists();
+            })
+            .fail(function() {
+                alert("error");
+            });
+    });
+
+    function tokenizeCreditCard() {
+        let $form = $('#creditCardRegistrationForm');
+        let request = {
+            number: $form.find('input[name="cardNumber"]').val(),
+            holderName: $form.find('input[name="holderName"]').val(),
+            holderDocument: $form.find('input[name="holderDocument"]').val(),
+            expMonth: parseInt($form.find('input[name="expMonth"]').val(), 10),
+            expYear: parseInt($form.find('input[name="expYear"]').val(), 10),
+            cvv: $form.find('input[name="CVV"]').val()
+        };
+
+        return $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify(request),
+            headers: {
+                'Token': $form.data('public-token')
+            },
+            dataType: 'json',
+            url: $form.data('token-url'),
+            type: 'POST'
+        });
+    }
+
+    function registerCreditCard(tokenizedCard) {
+        let token = $("meta[name='_csrf']").attr("content");
+        let headerName = $("meta[name='_csrf_header']").attr("content");
+        let headers = {};
+        headers[headerName] = token;
+
+        return $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify({ tokenizedCard: tokenizedCard }),
+            headers: headers,
+            dataType: 'json',
+            url: '/my-account/credit-cards',
+            type: 'POST'
+        });
+    }
+
+    $('#creditCardRegistrationSubmit').on('click', function() {
+        let $button = $(this);
+        $('#creditCardRegistrationError').addClass('hidden');
+        $button.prop('disabled', true);
+
+        tokenizeCreditCard()
+            .then(function(data) {
+                let tokenizedCard = typeof data === 'string' ? JSON.parse(data).tokenizedCard : data.tokenizedCard;
+                return registerCreditCard(tokenizedCard);
+            })
+            .done(function(creditCard) {
+                $('#creditCardRegistrationModal').modal('hide');
+                $('#creditCardRegistrationForm')[0].reset();
+                refreshCreditCardLists(creditCard.id);
+            })
+            .fail(function() {
+                $('#creditCardRegistrationError').removeClass('hidden');
+            })
+            .always(function() {
+                $button.prop('disabled', false);
+            });
+    });
 
     $('#checkoutForm').submit(function(e) {
         //e.preventDefault();
@@ -259,14 +358,10 @@
             return true;
         }
 
-        let cardResponse = generateToken();
-        console.log(cardResponse);
-
-        if (cardResponse.fail == true) {
-             return false;
+        if (!$('select[name="creditCardId"]').val()) {
+            alert('Choose a credit card or add a new one.');
+            return false;
         }
-
-        $('#cardTokenInput').val(cardResponse.tokenizedCard);
 
         return true;
     });

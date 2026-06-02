@@ -1,9 +1,12 @@
 package com.algaworks.algashop.ecommerce.application.controller;
 
 import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
+import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
 import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
+import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
+import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.model.page.CheckoutPageModel;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
 import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
@@ -16,6 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,6 +30,7 @@ public class CheckoutController {
 
 	private final ShoppingCartService shoppingCartService;
 	private final CheckoutClient checkoutClient;
+	private final CreditCardClient creditCardClient;
 	private final CustomerRestClient customerManagementAPIClient;
 
 	@GetMapping("/checkout")
@@ -50,10 +57,16 @@ public class CheckoutController {
 	}
 
 	private ModelAndView checkout(CheckoutForm checkoutForm) {
+		return checkout(checkoutForm, null);
+	}
+
+	private ModelAndView checkout(CheckoutForm checkoutForm, AlertMessage alertMessage) {
 		var pageBuilder = CheckoutPageModel.builder();
 
 		return pageBuilder
 				.checkoutForm(checkoutForm)
+				.creditCards(loadCreditCards())
+				.alertMessage(alertMessage)
 				.build()
 				.toModelAndView();
 	}
@@ -66,7 +79,15 @@ public class CheckoutController {
 		}
 
 		if (bindingResult.hasErrors()) {
-			return checkout(checkoutForm);
+			return checkout(checkoutForm, AlertMessage.danger("There are errors in the form!"));
+		}
+
+		String creditCardId;
+		try {
+			creditCardId = resolveCreditCardId(checkoutForm);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return checkout(checkoutForm, AlertMessage.danger("Credit card could not be used. Check the information and try again."));
 		}
 
 		PersonalInfoModel shippingInfo = checkoutForm.isSendToDifferentAddress()
@@ -83,7 +104,7 @@ public class CheckoutController {
 
 		CheckoutModel input = CheckoutModel.builder()
 				.paymentMethod(checkoutForm.getPaymentMethod().name())
-				.creditCardId(checkoutForm.getCreditCardId())
+				.creditCardId(creditCardId)
 				.shipping(ShippingInputModel.builder()
 						.recipient(RecipientModel.builder()
 								.firstName(shippingName.firstName())
@@ -106,6 +127,29 @@ public class CheckoutController {
 		OrderModel checkout = checkoutClient.checkout(input);
 
 		return new ModelAndView("redirect:/my-account/orders/" + checkout.getId());
+	}
+
+	private String resolveCreditCardId(CheckoutForm checkoutForm) {
+		if (!PaymentMethod.CREDIT_CARD.equals(checkoutForm.getPaymentMethod())) {
+			return null;
+		}
+
+		if (StringUtils.hasText(checkoutForm.getCreditCardId())) {
+			creditCardClient.findById(checkoutForm.getCreditCardId());
+			return checkoutForm.getCreditCardId();
+		}
+
+		throw new IllegalArgumentException("Credit card id is required");
+	}
+
+	private List<CreditCardModel> loadCreditCards() {
+		try {
+			List<CreditCardModel> creditCards = creditCardClient.findAll();
+			return creditCards == null ? List.of() : creditCards;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return List.of();
+		}
 	}
 
 }

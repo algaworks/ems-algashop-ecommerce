@@ -127,6 +127,7 @@
 
                 <!-- Order Details -->
                 <div class="col-md-5 order-details" th:with="shoppingCart=${@menuService.loadShoppingCart()}">
+                    <th:block th:insert="~{fragments/messages-by-type.html}"></th:block>
                     <div class="section-title text-center">
                         <h3 class="title">Order Summary</h3>
                     </div>
@@ -151,10 +152,6 @@
                         </div>
                     </div>
                     <div class="payment-method" th:object="${checkoutForm}">
-                        <input form="checkoutForm" id="cardTokenInput" class="input" type="hidden" name="creditCardToken"
-                               th:field="*{creditCardToken}">
-                        <input form="checkoutForm" id="cardIdInput" class="input" type="hidden" name="creditCardId"
-                               th:field="*{creditCardId}">
                         <div class="input-radio">
                             <input form="checkoutForm" type="radio" th:field="*{paymentMethod}" value="GATEWAY_BALANCE" id="payment-1">
                             <label for="payment-1">
@@ -169,25 +166,21 @@
                                 Credit Card
                             </label>
                             <div class="caption">
-                                <form id="cardForm" th:action="${@ecommerceProperties.getPaymentProviderCreditCardTokenUrl()}" method="post">
-                                    <input type="hidden" id="publicCardToken" th:value="${@ecommerceProperties.getPaymentProviderPublicKey()}">
-                                    <p>Credit card info</p>
-                                    <div class="form-group">
-                                        <input form="cardForm" class="input" type="text" name="holderName" placeholder="Name">
-                                    </div>
-                                    <div class="form-group">
-                                        <input form="cardForm" class="input" type="text" name="holderDocument" placeholder="Document">
-                                    </div>
-                                    <div class="form-group">
-                                        <input form="cardForm" class="input" type="text" name="cardNumber" placeholder="Card number">
-                                    </div>
-                                    <div class="form-group">
-                                        <input form="cardForm" class="input" type="text" name="cardExpiration" placeholder="Expiration date">
-                                    </div>
-                                    <div class="form-group">
-                                        <input form="cardForm" class="input" type="text" name="CVV" placeholder="CVV">
-                                    </div>
-                                </form>
+                                <p th:if="${#lists.isEmpty(creditCards)}" class="js-credit-card-empty">
+                                    You do not have saved credit cards yet.
+                                </p>
+                                <select form="checkoutForm" name="creditCardId" class="input js-credit-card-list js-credit-card-select"
+                                        data-mode="checkout" th:field="*{creditCardId}">
+                                    <option value="">Choose a credit card</option>
+                                    <option th:each="creditCard: ${creditCards}" th:value="${creditCard.id}"
+                                            th:text="|${creditCard.brand} ****-${creditCard.lastNumbers} - ${creditCard.expMonth}/${creditCard.expYear}|">
+                                        Visa ****-1234 - 12/2028
+                                    </option>
+                                </select>
+                                <button type="button" class="secondary-btn btn btn-default js-open-credit-card-modal"
+                                        data-toggle="modal" data-target="#creditCardRegistrationModal">
+                                    Add new card
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -201,6 +194,8 @@
         <!-- /container -->
     </div>
     <!-- /SECTION -->
+
+    <th:block th:insert="~{fragments/credit-card-registration-modal.html}"></th:block>
 </th:block>
 
 <th:block layout:fragment="javascript-extra">

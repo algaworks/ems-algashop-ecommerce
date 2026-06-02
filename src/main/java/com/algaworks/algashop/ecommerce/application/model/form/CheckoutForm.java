@@ -28,8 +28,6 @@ public class CheckoutForm {
 
 	private String creditCardId;
 
-	private String creditCardToken;
-
 	public static CheckoutForm of(CustomerModel customerModel) {
 		if (customerModel == null) {
 			return new CheckoutForm();
