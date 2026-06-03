@@ -4,11 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
@@ -66,12 +63,6 @@ public class EcommerceWebSecurityConfig {
 //	public ClientRegistrationRepository clientRegistrationRepository() {
 //		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
 //	}
-
-	@Bean
-	public OAuth2AuthorizedClientService authorizedClientService() {
-//		return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
-		return new OAuth2AuthorizedClientServiceRedis();
-	}
 
 	@Bean
 	public OAuth2AuthorizedClientRepository authorizedClientRepository() { //J

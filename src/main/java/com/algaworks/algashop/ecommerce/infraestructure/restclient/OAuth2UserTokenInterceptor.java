@@ -1,6 +1,6 @@
 package com.algaworks.algashop.ecommerce.infraestructure.restclient;
 
-import com.algaworks.algashop.ecommerce.infraestructure.oauth2.OAuth2ClientCredentialsManagerService;
+import com.algaworks.algashop.ecommerce.infraestructure.oauth2.OAuth2UserAuthorizationRequiredException;
 import com.algaworks.algashop.ecommerce.infraestructure.security.AlgaShopSecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpRequest;
@@ -11,67 +11,41 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
 
 @RequiredArgsConstructor
 @Component
 public class OAuth2UserTokenInterceptor implements ClientHttpRequestInterceptor {
-//    private static final String clientRegistrationId = "oidc";
-
-//    private final OAuth2AuthorizedClientService authorizedClientService;
-//    private final OAuth2AuthorizedClientManager manager;
-//    private final ClientRegistration clientRegistration;
-//    private final AlgaShopSecurityService algaShopSecurityService;
 
     private final AlgaShopSecurityService algaShopSecurityService;
-    private final OAuth2ClientCredentialsManagerService managerService;
+    private final OAuth2AuthorizedClientManager authorizedClientManager;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                 ClientHttpRequestExecution execution) throws IOException {
         var authentication = algaShopSecurityService.getAuthentication()
-                .orElseThrow(()-> new AccessDeniedException("No authenticated user"));
-        OAuth2AccessToken accessToken = managerService.getAccessToken(authentication.getAuthorizedClientRegistrationId(), authentication);
-        request.getHeaders().setBearerAuth(accessToken.getTokenValue());
+                .orElseThrow(() -> new OAuth2UserAuthorizationRequiredException("No authenticated user"));
 
-//todo melhorar logica e testar
-        //apenas pega o token atual, que pode ter expirado
-//		authentication.ifPresent(oAuth2AuthenticationToken -> {
-//            OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(clientRegistrationId, oAuth2AuthenticationToken.getName());
-//            //todo se vier null deve deslogar
-//            if (authorizedClient != null) {
-//                if (authorizedClient.getAccessToken().getExpiresAt() != null &&
-//                        OffsetDateTime.now().toInstant().isAfter(authorizedClient.getAccessToken().getExpiresAt())) {
-//                    //gera um novo token
-//                    OAuth2AuthorizeRequest oAuth2AuthorizeRequest = OAuth2AuthorizeRequest
-//                            .withClientRegistrationId(clientRegistrationId)
-//                            .principal(authentication.get())
-//                            .build();
-//
-//                    OAuth2AuthorizedClient reAuthorizedClient = manager.authorize(oAuth2AuthorizeRequest);
-//                    //todo handler para -> org.springframework.web.client.HttpClientErrorException$Unauthorized: 401 : [no body] //
-//                    request.getHeaders().setBearerAuth(reAuthorizedClient.getAccessToken().getTokenValue());
-//                } else {
-//                    request.getHeaders().setBearerAuth(authorizedClient.getAccessToken().getTokenValue());
-//                }
-//            }
-//        });
+        try {
+            OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+                    .withClientRegistrationId(authentication.getAuthorizedClientRegistrationId())
+                    .principal(authentication)
+                    .build();
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
 
-//        //gera um novo token
-//        authentication.ifPresent(oAuth2AuthenticationToken -> {
-//            OAuth2AuthorizeRequest oAuth2AuthorizeRequest = OAuth2AuthorizeRequest
-//                    .withClientRegistrationId(clientRegistrationId)
-//                    .principal(authentication.get())
-//                    .build();
-//
-//            OAuth2AuthorizedClient client2 = manager.authorize(oAuth2AuthorizeRequest);
-//            request.getHeaders().setBearerAuth(client2.getAccessToken().getTokenValue());
-//        });
+            if (authorizedClient == null || authorizedClient.getAccessToken() == null) {
+                throw new AccessDeniedException("OAuth2 user authorization failed.");
+            }
+
+            OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+            request.getHeaders().setBearerAuth(accessToken.getTokenValue());
+        } catch (OAuth2AuthorizationException | AccessDeniedException e) {
+            throw new OAuth2UserAuthorizationRequiredException("OAuth2 user authorization is required.", e);
+        }
 
         return execution.execute(request, body);
     }
