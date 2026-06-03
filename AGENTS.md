@@ -63,7 +63,7 @@ rtk ./gradlew test
 To run a single test class:
 
 ```bash
-rtk ./gradlew test --tests "com.algaworks.algashop.ecommerce.application.controller.MyDataControllerTest"
+rtk ./gradlew test --tests "com.algaworks.algashop.ecommerce.application.controller.MyAccountDetailsControllerTest"
 ```
 
 Existing focused tests cover controller behavior and account-profile flows, for example `MyDataControllerTest`, `CustomerProfileControllerTest`, and `CustomerProfileRequiredInterceptorTest`.
