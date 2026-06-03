@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MyDataControllerTest {
+class MyAccountDetailsControllerTest {
 
 	@Mock
 	private CustomerRestClient customerRestClient;
@@ -33,7 +33,7 @@ class MyDataControllerTest {
 
 	@Test
 	void shouldPreserveExistingAddressWhenUpdatingPersonalData() {
-		MyDataController controller = new MyDataController(customerRestClient, userAPIClient);
+		MyAccountDetailsController controller = new MyAccountDetailsController(customerRestClient, userAPIClient);
 		CustomerModel customer = customer();
 		EditCustomerForm form = EditCustomerForm.builder()
 				.fullName("Alex Updated")
