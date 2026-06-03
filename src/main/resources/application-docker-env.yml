@@ -11,7 +11,7 @@ spring:
       host: algashop-redis
       port: 6379
       password: redis123
-      database: 3
+      database: 4
   security:
     oauth2:
       client:

@@ -30,6 +30,14 @@ public class ShoppingCartClient {
 				.toEntity(ShoppingCartModel.class).getBody();
 	}
 
+	public ShoppingCartModel createCurrentShoppingCart() {
+		return restClient.post()
+				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart"))
+				.accept(MediaType.APPLICATION_JSON)
+				.retrieve()
+				.toEntity(ShoppingCartModel.class).getBody();
+	}
+
 	public ShoppingCartItemListModel getShoppingCartItems() {
 		return restClient.get()
 				.uri(URI.create(properties.getApiUrl() + "/api/v1/customers/me/shopping-cart/items"))

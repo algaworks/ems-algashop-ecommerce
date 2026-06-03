@@ -30,7 +30,7 @@ public class MyAccountController {
 	private final OrderClient orderClient;
 	private final AlgaShopSecurityService algaShopSecurityService;
 
-	@GetMapping("/my-account") //todo flash redirect attr
+	@GetMapping("/my-account")
 	public ModelAndView myAccount(NewCustomerForm newCustomerForm) {
 		if (algaShopSecurityService.getAuthentication().isPresent()) {
 			return existingAccount();
@@ -62,7 +62,7 @@ public class MyAccountController {
 	}
 
 	@PostMapping("/my-account")
-	public ModelAndView cadastro(@Valid @ModelAttribute("newCustomerForm") NewCustomerForm newCustomerForm,
+	public ModelAndView create(@Valid @ModelAttribute("newCustomerForm") NewCustomerForm newCustomerForm,
 								 BindingResult bindingResult,
 								 RedirectAttributes redirectAttributes) {
 		if (bindingResult.hasErrors()) {

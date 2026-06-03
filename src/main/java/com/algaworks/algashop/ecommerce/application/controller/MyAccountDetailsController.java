@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-public class MyDataController {
+public class MyAccountDetailsController {
 
 	private final CustomerRestClient customerManagementClient;
 	private final UserAPIClient userAPIClient;

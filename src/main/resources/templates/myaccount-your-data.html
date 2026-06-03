@@ -60,7 +60,9 @@
                         <div class="col-lg-6 col-sm-12">
                             <div class="order-details">
                                 <h3>Account details</h3>
-                                <form th:action="|/my-account/details|" method="post" style="margin-bottom: 2em;" th:object="${customerForm}">
+                                <form th:action="|/my-account/details|" method="post" style="margin-bottom: 2em;"
+                                      th:if="${customerForm != null}"
+                                      th:object="${customerForm}">
                                     <div class="form-group">
                                         <input class="input" type="text" th:field="*{fullName}" th:errorclass="error" placeholder="Fullname" required>
                                     </div>

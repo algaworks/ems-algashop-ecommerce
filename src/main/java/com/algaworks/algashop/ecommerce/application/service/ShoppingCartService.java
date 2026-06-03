@@ -26,10 +26,23 @@ public class ShoppingCartService {
 	}
 
 	public void addItem(ShoppingCartItemInput shoppingCartItemInput) {
-		shoppingCartClient.addItem(shoppingCartItemInput);
+		try {
+			shoppingCartClient.addItem(shoppingCartItemInput);
+		} catch (HttpClientErrorException.NotFound e) {
+			createCurrentShoppingCartIfNecessary();
+			shoppingCartClient.addItem(shoppingCartItemInput);
+		}
 	}
 
 	public void removeItem(String itemId) {
 		shoppingCartClient.removeItem(itemId);
+	}
+
+	private void createCurrentShoppingCartIfNecessary() {
+		try {
+			shoppingCartClient.createCurrentShoppingCart();
+		} catch (HttpClientErrorException.UnprocessableEntity e) {
+			log.warn("ShoppingCart already exists for the current customer.");
+		}
 	}
 }
