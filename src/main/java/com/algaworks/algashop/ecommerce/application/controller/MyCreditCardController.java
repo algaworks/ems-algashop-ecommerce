@@ -3,6 +3,7 @@ package com.algaworks.algashop.ecommerce.application.controller;
 import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.model.client.CreditCardModel;
 import com.algaworks.algashop.ecommerce.application.model.client.TokenizedCreditCardInput;
+import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +24,14 @@ import java.util.List;
 public class MyCreditCardController {
 
 	private final CreditCardClient creditCardClient;
+	private final EcommerceProperties ecommerceProperties;
 
 	@GetMapping("/my-account/credit-cards")
 	public ModelAndView creditCards() {
 		ModelAndView modelAndView = new ModelAndView("myaccount-credit-cards");
 		modelAndView.addObject("creditCards", loadCreditCards());
+		modelAndView.addObject("paymentProviderCreditCardTokenUrl", ecommerceProperties.getPaymentProviderCreditCardTokenUrl());
+		modelAndView.addObject("paymentProviderPublicKey", ecommerceProperties.getPaymentProviderPublicKey());
 		return modelAndView;
 	}
 

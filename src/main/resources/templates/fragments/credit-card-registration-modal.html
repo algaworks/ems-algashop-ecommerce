@@ -18,8 +18,8 @@
                     Invalid credit card. Check the information and try again.
                 </div>
                 <form id="creditCardRegistrationForm"
-                      th:attr="data-token-url=${@ecommerceProperties.getPaymentProviderCreditCardTokenUrl()},
-                               data-public-token=${@ecommerceProperties.getPaymentProviderPublicKey()}">
+                      th:attr="data-token-url=${paymentProviderCreditCardTokenUrl},
+                               data-public-token=${paymentProviderPublicKey}">
                     <div class="form-group">
                         <input class="input" type="text" name="holderName" placeholder="Name">
                     </div>
