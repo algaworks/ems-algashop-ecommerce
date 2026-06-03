@@ -26,8 +26,6 @@ public class MenuService {
 			if (algaShopSecurityService.getAuthentication().isPresent()) {
 				return shoppingCartService.findCurrentShoppingCart();
 			}
-		} catch (OAuth2UserAuthorizationRequiredException e) {
-			throw e;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

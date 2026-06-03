@@ -41,10 +41,12 @@ public class EcommerceWebSecurityConfig {
 			.oauth2Login(o -> o.userInfoEndpoint(withDefaults())
 				//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/web/AuthorizationController.java
 				.loginPage("/my-account") //http://algashop-ecommerce:9080/oauth2/authorization/oidc
-			).logout((logout) -> logout
-						.logoutUrl("/logout")
+			).logout(logout -> logout
 						.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
-			);
+						.invalidateHttpSession(true)
+						.clearAuthentication(true)
+						.deleteCookies("JSESSIONID")
+				);
 		return http.build();
 	}
 
@@ -52,9 +54,9 @@ public class EcommerceWebSecurityConfig {
 		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
 				new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
 
-		// Sets the location that the End-User's User Agent will be redirected to
-		// after the logout has been performed at the Provider
-		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/logged-out");
+
+		// Define para onde o provedor deve redirecionar o usuário após o logout no servidor deles
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}?logout-success");
 
 		return oidcLogoutSuccessHandler;
 	}
