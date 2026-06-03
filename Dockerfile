@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 ENV HOMEDIR=/app \
     JAR_NAME=algashop-ecommerce.jar
 WORKDIR ${HOMEDIR}

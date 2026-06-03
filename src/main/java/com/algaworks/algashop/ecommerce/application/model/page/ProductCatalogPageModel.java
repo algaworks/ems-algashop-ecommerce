@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductCatalogPageModel extends PageModel<ProductModel> {
 	@Builder.Default
 	private List<ProductModel> products = new ArrayList<>();

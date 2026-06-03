@@ -24,7 +24,7 @@ public class ProductClient {
 
 
 	public PageModel<ProductModel> findAll(ProductFilter productFilter) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl() + "/api/v1/products")
+		URI uri = UriComponentsBuilder.fromUriString(properties.getApiUrl() + "/api/v1/products")
 				.queryParams(productFilter.toQueryParams())
 				.build()
 				.toUri();

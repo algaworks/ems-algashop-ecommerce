@@ -47,4 +47,10 @@ spring:
             client-name: algashop-ecommerce-m2m
         provider:
           algashop-auth:
-            issuer-uri: http://auth.algashop.local:8081
+            issuer-uri: ${algashop.authorization-server-url}
+#            authorization-uri: ${algashop.authorization-server-url}/oauth2/authorize
+#            token-uri: ${algashop.authorization-server-url}/oauth2/token
+#            jwk-set-uri: ${algashop.authorization-server-url}/oauth2/jwks
+#            user-info-uri: ${algashop.authorization-server-url}/userinfo
+#          user-info-authentication-method: header
+#          user-name-attribute: sub

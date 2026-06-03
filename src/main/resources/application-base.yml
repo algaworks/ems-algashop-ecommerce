@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: algashop-authorization-server
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+    check-template-location: true
   security:
     oauth2:
       client:

@@ -1,6 +1,6 @@
 package com.algaworks.algashop.ecommerce.application.model.client;
 
-import groovyjarjarantlr4.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

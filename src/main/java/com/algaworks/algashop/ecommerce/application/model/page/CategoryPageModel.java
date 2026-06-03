@@ -3,13 +3,17 @@ package com.algaworks.algashop.ecommerce.application.model.page;
 import com.algaworks.algashop.ecommerce.application.model.client.CategoryModel;
 import com.algaworks.algashop.ecommerce.application.model.client.PageModel;
 import com.algaworks.algashop.ecommerce.application.model.filter.ProductFilter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategoryPageModel extends PageModel<CategoryModel> {
 	@Builder.Default
 	private List<CategoryModel> categories = new ArrayList<>();

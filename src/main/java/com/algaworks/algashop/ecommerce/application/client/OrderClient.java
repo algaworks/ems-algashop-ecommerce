@@ -24,7 +24,7 @@ public class OrderClient {
 	}
 
 	public OrderModelPage getOrders(OrderFilter orderFilter) {
-		var builder = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl() + "/api/v1/customers/me/orders");
+		var builder = UriComponentsBuilder.fromUriString(properties.getApiUrl() + "/api/v1/customers/me/orders");
 
 		if (orderFilter.getStatus() != null) {
 			builder.queryParam("status", orderFilter.getStatus());
