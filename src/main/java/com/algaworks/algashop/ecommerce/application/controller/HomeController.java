@@ -27,21 +27,9 @@ public class HomeController {
 	private final ProductClient productClient;
 	private final CategoryClient categoryClient;
 
-	private final AlgaShopSecurityService algaShopSecurityService;
-//	private final OAuth2AuthorizedClientManager authorizedClientManager;
-
 	@GetMapping("/")
 	public ModelAndView index() {
-		//todo rever como injetar clients
-//		@AuthenticationPrincipal OAuth2User userDetails,
-//		@RegisteredOAuth2AuthorizedClient("oidc") OAuth2AuthorizedClient authorizedClient
-//		OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-//
-//		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-
-//		authorizedClientManager.
-
-		var pageBuilder = HomePageModel.builder(); //OAuth2AccessToken
+		var pageBuilder = HomePageModel.builder();
 
 		try {
 			PageModel<ProductModel> products = productClient.findAll(new ProductFilter());

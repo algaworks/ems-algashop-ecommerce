@@ -13,7 +13,7 @@ import java.util.TimeZone;
 public class EcommerceWebAppApplication {
 
 	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC")); //todo gmt-3
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		SpringApplication.run(EcommerceWebAppApplication.class, args);
 	}
 
