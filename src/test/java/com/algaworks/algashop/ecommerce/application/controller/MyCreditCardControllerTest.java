@@ -3,6 +3,7 @@ package com.algaworks.algashop.ecommerce.application.controller;
 import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.model.client.CreditCardModel;
 import com.algaworks.algashop.ecommerce.application.model.client.TokenizedCreditCardInput;
+import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,7 +29,7 @@ class MyCreditCardControllerTest {
 
 	@Test
 	void shouldRenderCreditCardsPage() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 		CreditCardModel creditCard = creditCard("card-1");
 
 		when(creditCardClient.findAll()).thenReturn(List.of(creditCard));
@@ -37,11 +38,13 @@ class MyCreditCardControllerTest {
 
 		assertThat(modelAndView.getViewName()).isEqualTo("myaccount-credit-cards");
 		assertThat(modelAndView.getModel().get("creditCards")).isEqualTo(List.of(creditCard));
+		assertThat(modelAndView.getModel().get("paymentProviderCreditCardTokenUrl")).isEqualTo("http://fastpay/tokenized-cards");
+		assertThat(modelAndView.getModel().get("paymentProviderPublicKey")).isEqualTo("public-key");
 	}
 
 	@Test
 	void shouldReturnCreditCardsAsJson() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 		CreditCardModel creditCard = creditCard("card-1");
 
 		when(creditCardClient.findAll()).thenReturn(List.of(creditCard));
@@ -54,7 +57,7 @@ class MyCreditCardControllerTest {
 
 	@Test
 	void shouldRegisterCreditCard() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 		CreditCardModel creditCard = creditCard("card-1");
 		ArgumentCaptor<TokenizedCreditCardInput> inputCaptor = ArgumentCaptor.forClass(TokenizedCreditCardInput.class);
 
@@ -71,7 +74,7 @@ class MyCreditCardControllerTest {
 
 	@Test
 	void shouldReturnBadRequestWhenRegisterFails() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 
 		when(creditCardClient.register(any(TokenizedCreditCardInput.class))).thenThrow(new RuntimeException("provider error"));
 
@@ -84,7 +87,7 @@ class MyCreditCardControllerTest {
 
 	@Test
 	void shouldRemoveCreditCard() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 
 		ResponseEntity<Void> responseEntity = controller.remove("card-1");
 
@@ -94,13 +97,20 @@ class MyCreditCardControllerTest {
 
 	@Test
 	void shouldReturnBadRequestWhenRemoveFails() {
-		MyCreditCardController controller = new MyCreditCardController(creditCardClient);
+		MyCreditCardController controller = controller();
 
 		doThrow(new RuntimeException("provider error")).when(creditCardClient).deleteById("card-1");
 
 		ResponseEntity<Void> responseEntity = controller.remove("card-1");
 
 		assertThat(responseEntity.getStatusCode().is4xxClientError()).isTrue();
+	}
+
+	private MyCreditCardController controller() {
+		EcommerceProperties properties = new EcommerceProperties();
+		properties.setPaymentProviderCreditCardTokenUrl("http://fastpay/tokenized-cards");
+		properties.setPaymentProviderPublicKey("public-key");
+		return new MyCreditCardController(creditCardClient, properties);
 	}
 
 	private CreditCardModel creditCard(String id) {
