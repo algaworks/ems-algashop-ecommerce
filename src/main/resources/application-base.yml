@@ -3,41 +3,4 @@ server:
 
 spring:
   application:
-    name: algashop-authorization-server
-  thymeleaf:
-    mode: HTML
-    encoding: UTF-8
-    cache: false
-    check-template-location: true
-  security:
-    oauth2:
-      client:
-        registration:
-          algashop-ecommerce-web:
-            provider: algashop-auth
-            client-id: algashop-ecommerce-web
-            client-secret: ${ALGASHOP_ECOMMERCE_WEB_CLIENT_SECRET:ecommerce123}
-            authorization-grant-type: authorization_code
-            scope:
-              - "openid"
-              - "orders:read"
-              - "orders:write"
-              - "customers:read"
-              - "customers:write"
-              - "shopping-carts:read"
-              - "shopping-carts:write"
-              - "credit-cards:read"
-              - "credit-cards:write"
-              - "invoices:read"
-            client-name: algashop-ecommerce-web
-          backend:
-            provider: algashop-auth
-            client-id: algashop-ecommerce-m2m
-            client-secret: ${ALGASHOP_ECOMMERCE_M2M_CLIENT_SECRET:webintegration123}
-            authorization-grant-type: client_credentials
-            scope:
-              - "products:read"
-              - "categories:read"
-              - "users:write"
-              - "shipping-costs:preview"
-            client-name: algashop-ecommerce-m2m
+    name: algashop-ecommerce
