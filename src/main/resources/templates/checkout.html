@@ -37,91 +37,91 @@
 
                 <div class="col-md-7">
                     <form id="checkoutForm" th:action="@{/checkout}" method="post" th:object="${checkoutForm}">
+                        <!-- Shipping Details -->
+                        <div class="shiping-details">
+                            <div class="section-title">
+                                <h3 class="title">Shipping address</h3>
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.fullName}" th:errorclass="error" placeholder="Full name">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" data-mask="000-000-0000" type="text" th:field="*{shippingInfo.phone}" th:errorclass="error" placeholder="Phone">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" data-mask="000-00-0000" type="text" th:field="*{shippingInfo.document}" th:errorclass="error" placeholder="Document">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" data-mask="00000" type="text" th:field="*{shippingInfo.address.zipCode}" th:errorclass="error" placeholder="Zipcode">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.street}" th:errorclass="error" placeholder="Street">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.number}" th:errorclass="error" placeholder="Number">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.complement}" th:errorclass="error" placeholder="Complement">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.neighborhood}" th:errorclass="error" placeholder="Neighborhood">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.state}" th:errorclass="error" placeholder="State">
+                            </div>
+                            <div class="form-group">
+                                <input class="input" type="text" th:field="*{shippingInfo.address.city}" th:errorclass="error" placeholder="City">
+                            </div>
+                        </div>
+                        <!-- /Shipping Details -->
+
                         <!-- Billing Details -->
                         <div class="billing-details">
                             <div class="section-title">
                                 <h3 class="title">Billing address</h3>
                             </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.fullName}" th:errorclass="error" placeholder="Full name">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" data-mask="000-000-0000" type="text" th:field="*{billingInfo.phone}" th:errorclass="error" placeholder="Phone">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" data-mask="000-00-000" type="text" th:field="*{billingInfo.document}" th:errorclass="error" placeholder="Document">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" data-mask="00000" type="text" th:field="*{billingInfo.address.zipCode}" th:errorclass="error" placeholder="Zipcode">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.street}" th:errorclass="error" placeholder="Street">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.number}" th:errorclass="error" placeholder="Number">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.complement}" th:errorclass="error" placeholder="Complement">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.neighborhood}" th:errorclass="error" placeholder="Neighborhood">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.state}" th:errorclass="error" placeholder="State">
-                            </div>
-                            <div class="form-group">
-                                <input class="input" type="text" th:field="*{billingInfo.address.city}" th:errorclass="error" placeholder="City">
-                            </div>
-                        </div>
-                        <!-- /Billing Details -->
-
-                        <!-- Shiping Details -->
-                        <div class="shiping-details">
-                            <div class="section-title">
-                                <h3 class="title">Shipping address</h3>
-                            </div>
                             <div class="input-checkbox">
-                                <input type="checkbox" id="shiping-address"
-                                       th:checked="*{sendToDifferentAddress}" name="sendToDifferentAddress">
-                                <label for="shiping-address">
+                                <input type="checkbox" id="billToDifferentAddress"
+                                       th:checked="*{billToDifferentAddress}" name="billToDifferentAddress">
+                                <label for="billToDifferentAddress">
                                     <span></span>
-                                    Send to a different address?
+                                    Bill to a different address?
                                 </label>
                                 <div class="caption">
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.fullName}" th:errorclass="error" placeholder="Full name">
+                                        <input class="input" type="text" th:field="*{billingInfo.fullName}" th:errorclass="error" placeholder="Full name">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" data-mask="000-000-0000" type="text" th:field="*{shippingInfo.phone}" th:errorclass="error" placeholder="Phone">
+                                        <input class="input" data-mask="000-000-0000" type="text" th:field="*{billingInfo.phone}" th:errorclass="error" placeholder="Phone">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" data-mask="000-00-0000" type="text" th:field="*{shippingInfo.document}" th:errorclass="error" placeholder="Document">
+                                        <input class="input" data-mask="000-00-000" type="text" th:field="*{billingInfo.document}" th:errorclass="error" placeholder="Document">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" data-mask="00000" type="text" th:field="*{shippingInfo.address.zipCode}" th:errorclass="error" placeholder="Zipcode">
+                                        <input class="input" data-mask="00000" type="text" th:field="*{billingInfo.address.zipCode}" th:errorclass="error" placeholder="Zipcode">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.street}" th:errorclass="error" placeholder="Street">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.street}" th:errorclass="error" placeholder="Street">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.number}" th:errorclass="error" placeholder="Number">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.number}" th:errorclass="error" placeholder="Number">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.complement}" th:errorclass="error" placeholder="Complement">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.complement}" th:errorclass="error" placeholder="Complement">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.neighborhood}" th:errorclass="error" placeholder="Neighborhood">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.neighborhood}" th:errorclass="error" placeholder="Neighborhood">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.state}" th:errorclass="error" placeholder="State">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.state}" th:errorclass="error" placeholder="State">
                                     </div>
                                     <div class="form-group">
-                                        <input class="input" type="text" th:field="*{shippingInfo.address.city}" th:errorclass="error" placeholder="City">
+                                        <input class="input" type="text" th:field="*{billingInfo.address.city}" th:errorclass="error" placeholder="City">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- /Shiping Details -->
+                        <!-- /Billing Details -->
                     </form>
                 </div>
 

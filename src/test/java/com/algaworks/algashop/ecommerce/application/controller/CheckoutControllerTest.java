@@ -62,8 +62,10 @@ class CheckoutControllerTest {
 
 		assertThat(modelAndView.getViewName()).isEqualTo("checkout");
 		CheckoutForm form = (CheckoutForm) modelAndView.getModel().get("checkoutForm");
-		assertThat(form.getBillingInfo().getFullName()).isEqualTo("Alex Silva");
-		assertThat(form.getBillingInfo().getAddress().getZipCode()).isEqualTo("12345");
+		assertThat(form.getShippingInfo().getFullName()).isEqualTo("Alex Silva");
+		assertThat(form.getShippingInfo().getAddress().getZipCode()).isEqualTo("12345");
+		assertThat(form.getBillingInfo().getFullName()).isNull();
+		assertThat(form.getBillingInfo().getAddress().getZipCode()).isNull();
 		assertThat(modelAndView.getModel().get("creditCards")).isEqualTo(List.of(creditCard));
 	}
 
@@ -85,6 +87,57 @@ class CheckoutControllerTest {
 		verify(checkoutClient).checkout(inputCaptor.capture());
 		assertThat(inputCaptor.getValue().getCreditCardId()).isEqualTo("card-1");
 		assertThat(inputCaptor.getValue().getPaymentMethod()).isEqualTo("CREDIT_CARD");
+	}
+
+	@Test
+	void shouldCopyShippingInfoToBillingWhenBillingAddressIsNotDifferent() {
+		CheckoutController controller = controller();
+		CheckoutForm form = checkoutForm(PaymentMethod.GATEWAY_BALANCE);
+		form.setShippingInfo(personalInfo("Shipping Person", "111-22-333", "111-222-3333", address("10000", "Shipping Street")));
+		form.setBillingInfo(personalInfo("Billing Person", "999-88-777", "999-888-7777", address("90000", "Billing Street")));
+		ArgumentCaptor<CheckoutModel> inputCaptor = ArgumentCaptor.forClass(CheckoutModel.class);
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
+		when(checkoutClient.checkout(any(CheckoutModel.class))).thenReturn(order("order-1"));
+
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
+		verify(checkoutClient).checkout(inputCaptor.capture());
+		CheckoutModel input = inputCaptor.getValue();
+		assertThat(input.getShipping().getRecipient().getFirstName()).isEqualTo("Shipping");
+		assertThat(input.getShipping().getRecipient().getLastName()).isEqualTo("Person");
+		assertThat(input.getBilling().getFirstName()).isEqualTo("Shipping");
+		assertThat(input.getBilling().getLastName()).isEqualTo("Person");
+		assertThat(input.getBilling().getDocument()).isEqualTo("111-22-333");
+		assertThat(input.getBilling().getPhone()).isEqualTo("111-222-3333");
+		assertThat(input.getBilling().getAddress().getStreet()).isEqualTo("Shipping Street");
+	}
+
+	@Test
+	void shouldUseBillingInfoWhenBillingAddressIsDifferent() {
+		CheckoutController controller = controller();
+		CheckoutForm form = checkoutForm(PaymentMethod.GATEWAY_BALANCE);
+		form.setBillToDifferentAddress(true);
+		form.setShippingInfo(personalInfo("Shipping Person", "111-22-333", "111-222-3333", address("10000", "Shipping Street")));
+		form.setBillingInfo(personalInfo("Billing Person", "999-88-777", "999-888-7777", address("90000", "Billing Street")));
+		ArgumentCaptor<CheckoutModel> inputCaptor = ArgumentCaptor.forClass(CheckoutModel.class);
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
+		when(checkoutClient.checkout(any(CheckoutModel.class))).thenReturn(order("order-1"));
+
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
+		verify(checkoutClient).checkout(inputCaptor.capture());
+		CheckoutModel input = inputCaptor.getValue();
+		assertThat(input.getShipping().getRecipient().getFirstName()).isEqualTo("Shipping");
+		assertThat(input.getShipping().getAddress().getStreet()).isEqualTo("Shipping Street");
+		assertThat(input.getBilling().getFirstName()).isEqualTo("Billing");
+		assertThat(input.getBilling().getLastName()).isEqualTo("Person");
+		assertThat(input.getBilling().getDocument()).isEqualTo("999-88-777");
+		assertThat(input.getBilling().getPhone()).isEqualTo("999-888-7777");
+		assertThat(input.getBilling().getAddress().getStreet()).isEqualTo("Billing Street");
 	}
 
 	@Test
@@ -155,18 +208,26 @@ class CheckoutControllerTest {
 	}
 
 	private PersonalInfoModel personalInfo(String fullName) {
+		return personalInfo(fullName, "123-45-678", "123-456-7890", address());
+	}
+
+	private PersonalInfoModel personalInfo(String fullName, String document, String phone, AddressModel address) {
 		return PersonalInfoModel.builder()
 				.fullName(fullName)
-				.document("123-45-678")
-				.phone("123-456-7890")
-				.address(address())
+				.document(document)
+				.phone(phone)
+				.address(address)
 				.build();
 	}
 
 	private AddressModel address() {
+		return address("12345", "Main Street");
+	}
+
+	private AddressModel address(String zipCode, String street) {
 		return AddressModel.builder()
-				.zipCode("12345")
-				.street("Main Street")
+				.zipCode(zipCode)
+				.street(street)
 				.number("100")
 				.complement("Apt 10")
 				.neighborhood("Downtown")

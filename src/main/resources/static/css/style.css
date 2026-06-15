@@ -961,7 +961,7 @@ textarea.input {
 .product .product-body .product-name>a {
     font-weight: 700;
     white-space: nowrap;
-    width: 220px;
+    width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;

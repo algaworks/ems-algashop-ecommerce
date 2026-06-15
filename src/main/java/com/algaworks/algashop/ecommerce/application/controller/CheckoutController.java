@@ -90,11 +90,12 @@ public class CheckoutController {
 			return checkout(checkoutForm, AlertMessage.danger("Credit card could not be used. Check the information and try again."));
 		}
 
-		PersonalInfoModel shippingInfo = checkoutForm.isSendToDifferentAddress()
-				? checkoutForm.getShippingInfo()
-				: checkoutForm.getBillingInfo();
+		PersonalInfoModel shippingInfo = checkoutForm.getShippingInfo();
+		PersonalInfoModel billingInfo = checkoutForm.isBillToDifferentAddress()
+				? checkoutForm.getBillingInfo()
+				: shippingInfo;
 
-		var billingName = FullNameParser.split(checkoutForm.getBillingInfo().getFullName());
+		var billingName = FullNameParser.split(billingInfo.getFullName());
 		var shippingName = FullNameParser.split(shippingInfo.getFullName());
 
 		String email = userDetails.getAttribute("email");
@@ -117,10 +118,10 @@ public class CheckoutController {
 				.billing(BillingModel.builder()
 						.firstName(billingName.firstName())
 						.lastName(billingName.lastName())
-						.document(checkoutForm.getBillingInfo().getDocument())
-						.phone(checkoutForm.getBillingInfo().getPhone())
+						.document(billingInfo.getDocument())
+						.phone(billingInfo.getPhone())
 						.email(email)
-						.address(checkoutForm.getBillingInfo().getAddress())
+						.address(billingInfo.getAddress())
 						.build())
 				.build();
 

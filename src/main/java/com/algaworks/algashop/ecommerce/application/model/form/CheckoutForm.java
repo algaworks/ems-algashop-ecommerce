@@ -16,12 +16,14 @@ import lombok.NoArgsConstructor;
 public class CheckoutForm {
 
 	@NotNull
-	private PersonalInfoModel billingInfo;
+	@Builder.Default
+	private PersonalInfoModel billingInfo = emptyPersonalInfo();
 
 	@NotNull
-	private PersonalInfoModel shippingInfo;
+	@Builder.Default
+	private PersonalInfoModel shippingInfo = emptyPersonalInfo();
 
-	private boolean sendToDifferentAddress;
+	private boolean billToDifferentAddress;
 	
 	@NotNull
 	private PaymentMethod paymentMethod;
@@ -48,7 +50,14 @@ public class CheckoutForm {
 						.build())
 				.build();
 		return CheckoutForm.builder()
-				.billingInfo(personalInfo)
+				.shippingInfo(personalInfo)
+				.billingInfo(emptyPersonalInfo())
+				.build();
+	}
+
+	private static PersonalInfoModel emptyPersonalInfo() {
+		return PersonalInfoModel.builder()
+				.address(AddressModel.builder().build())
 				.build();
 	}
 }
