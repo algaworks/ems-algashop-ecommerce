@@ -15,4 +15,15 @@ class MyDataTemplateTest {
 
 		assertThat(template).doesNotContain("address.");
 	}
+
+	@Test
+	void shouldRenderAccountClosureActionOnMyDataTemplate() throws Exception {
+		String template = Files.readString(Path.of("src/main/resources/templates/myaccount-your-data.html"));
+
+		assertThat(template)
+				.contains("id=\"close-account\"")
+				.contains("id=\"accountClosureConfirmationModal\"")
+				.contains("@{/my-account/details/account-closure}")
+				.contains("Close my account");
+	}
 }

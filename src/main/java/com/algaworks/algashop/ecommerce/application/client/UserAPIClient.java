@@ -41,4 +41,11 @@ public class UserAPIClient {
 				.retrieve()
 				.toEntity(Void.class);
 	}
+
+	public void deleteMe() {
+		userAuthenticatedRestClient.delete()
+				.uri(URI.create(properties.getAuthorizationServerUrl() + "/api/v1/users/me"))
+				.retrieve()
+				.toEntity(Void.class);
+	}
 }

@@ -6,6 +6,7 @@ import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerUpdateInput;
 import com.algaworks.algashop.ecommerce.application.model.form.EditCustomerForm;
+import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +60,34 @@ class MyAccountDetailsControllerTest {
 		assertThat(input.getPhone()).isEqualTo("999-888-7777");
 		assertThat(input.getAddress()).isSameAs(customer.getAddress());
 		assertThat(input.getAddress().getZipCode()).isEqualTo("12345");
+	}
+
+	@Test
+	void shouldCloseAccountAndRedirectToLogout() {
+		MyAccountDetailsController controller = new MyAccountDetailsController(customerRestClient, userAPIClient);
+
+		ModelAndView modelAndView = controller.closeAccount();
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/logout");
+		verify(userAPIClient).deleteMe();
+	}
+
+	@Test
+	void shouldShowErrorWhenAccountClosureFails() {
+		MyAccountDetailsController controller = new MyAccountDetailsController(customerRestClient, userAPIClient);
+
+		doThrow(new RuntimeException("Authorization server unavailable")).when(userAPIClient).deleteMe();
+		when(customerRestClient.getMyProfile()).thenReturn(customer());
+
+		ModelAndView modelAndView = controller.closeAccount();
+
+		assertThat(modelAndView.getViewName()).isEqualTo("myaccount-your-data");
+		assertThat(modelAndView.getModel()).containsKey("customerForm");
+		AlertMessage alertMessage = (AlertMessage) modelAndView.getModel().get("alertMessage");
+		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
+		assertThat(alertMessage.getContent()).isEqualTo(
+				"An unknown error occurred while trying to close your account. Please try again later.");
+		verify(userAPIClient).deleteMe();
 	}
 
 	private CustomerModel customer() {

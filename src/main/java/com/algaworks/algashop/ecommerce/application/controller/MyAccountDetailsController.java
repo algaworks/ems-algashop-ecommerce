@@ -112,4 +112,17 @@ public class MyAccountDetailsController {
 				AlertMessage.success("Password change instructions were sent to your e-mail."));
 		return new ModelAndView("redirect:/my-account/details");
 	}
+
+	@PostMapping("/my-account/details/account-closure")
+	public ModelAndView closeAccount() {
+		try {
+			userAPIClient.deleteMe();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return getMyData(null, null, AlertMessage.danger(
+					"An unknown error occurred while trying to close your account. Please try again later."));
+		}
+
+		return new ModelAndView("redirect:/logout");
+	}
 }
