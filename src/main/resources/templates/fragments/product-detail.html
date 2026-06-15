@@ -38,11 +38,11 @@
                 <del class="product-old-price" th:text="${#numbers.formatCurrency(product.regularPrice)}">$990.00</del>
             </h3>
             <h3 th:if="${!product.hasDiscount}" class="product-price" th:text="${#numbers.formatCurrency(product.regularPrice)}"></h3>
-            <span th:if="${product.onStock}" class="product-available">In stock</span>
-            <span th:if="${!product.onStock}" class="product-available">Out of stock</span>
+            <span th:if="${product.inStock}" class="product-available">In stock</span>
+            <span th:if="${!product.inStock}" class="product-available">Out of stock</span>
         </div>
         <p style="white-space: pre-line" th:text="${product.description}">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-        <form th:if="${product.onStock}" th:action="|/shopping-cart/add/${product.slug}/${product.id}|" method="POST">
+        <form th:if="${product.inStock}" th:action="|/shopping-cart/add/${product.slug}/${product.id}|" method="POST">
             <div class="add-to-cart">
                 <div class="qty-label">
                     Qtd:

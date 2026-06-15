@@ -8,11 +8,11 @@ import java.time.OffsetDateTime;
 @Data
 public class ProductModel {
 	private String id;
-	private OffsetDateTime createdAt;
+	private OffsetDateTime addedAt;
 	private String name;
 	private String brand;
 	private String slug;
-	private boolean enabled;
+	private Boolean enabled;
 
 	private BigDecimal regularPrice;
 	private BigDecimal salePrice;
@@ -25,9 +25,4 @@ public class ProductModel {
 
 	private CategoryModel category;
 	private ImageModel mainImage;
-
-	//para tela
-	public boolean getOnStock() {
-		return inStock;
-	}
 }
