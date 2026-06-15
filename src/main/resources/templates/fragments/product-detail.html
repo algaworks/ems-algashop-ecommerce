@@ -42,17 +42,28 @@
             <span th:if="${!product.inStock}" class="product-available">Out of stock</span>
         </div>
         <p style="white-space: pre-line" th:text="${product.description}">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-        <form th:if="${product.inStock}" th:action="|/shopping-cart/add/${product.slug}/${product.id}|" method="POST">
+        <form th:if="${product.inStock}"
+              class="js-product-detail-action-form"
+              th:attr="data-cart-action=|/shopping-cart/add/${product.slug}/${product.id}|,
+                       data-buy-now-action=@{/buy-now/{productId}(productId=${product.id})}">
+            <input class="js-product-csrf-token" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div class="add-to-cart">
                 <div class="qty-label">
-                    Qtd:
+                    Quantity:
                     <div class="input-number">
                         <input name="quantity" type="number" value="1" min="1" max="1000">
                         <span class="qty-up">+</span>
                         <span class="qty-down">-</span>
                     </div>
                 </div>
-                <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Add to cart</button>
+                <div class="product-detail-actions">
+                    <button type="submit" class="add-to-cart-btn js-product-action-submit" data-action-type="cart">
+                        <i class="fa fa-shopping-cart"></i>Add to cart
+                    </button>
+                    <button type="submit" class="add-to-cart-btn js-product-action-submit" data-action-type="buy-now">
+                        <i class="fa fa-bolt"></i>Buy Now
+                    </button>
+                </div>
             </div>
         </form>
 

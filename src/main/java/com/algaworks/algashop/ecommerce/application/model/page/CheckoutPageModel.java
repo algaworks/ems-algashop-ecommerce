@@ -20,12 +20,18 @@ public class CheckoutPageModel {
 
 	private AlertMessage alertMessage;
 
+	private String paymentProviderCreditCardTokenUrl;
+
+	private String paymentProviderPublicKey;
+
 	public ModelAndView toModelAndView() {
 		ModelAndView modelAndView = new ModelAndView("checkout");
 
 		modelAndView.addObject("checkoutForm", checkoutForm);
 		modelAndView.addObject("creditCards", creditCards);
 		modelAndView.addObject("alertMessage", alertMessage);
+		modelAndView.addObject("paymentProviderCreditCardTokenUrl", paymentProviderCreditCardTokenUrl);
+		modelAndView.addObject("paymentProviderPublicKey", paymentProviderPublicKey);
 
 		return modelAndView;
 	}

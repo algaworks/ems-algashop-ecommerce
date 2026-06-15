@@ -3,20 +3,26 @@ package com.algaworks.algashop.ecommerce.application.controller;
 import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
 import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
+import com.algaworks.algashop.ecommerce.application.client.ProductClient;
 import com.algaworks.algashop.ecommerce.application.client.ShippingCostClient;
 import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
+import com.algaworks.algashop.ecommerce.application.model.client.BuyNowCheckoutModel;
+import com.algaworks.algashop.ecommerce.application.model.client.BuyNowShippingCostPreviewInput;
 import com.algaworks.algashop.ecommerce.application.model.client.CheckoutModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CreditCardModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
 import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
 import com.algaworks.algashop.ecommerce.application.model.client.PersonalInfoModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewInput;
 import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewResponse;
 import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
+import com.algaworks.algashop.ecommerce.application.model.form.BuyNowCheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
+import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +37,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -61,6 +68,9 @@ class CheckoutControllerTest {
 
 	@Mock
 	private ShippingCostClient shippingCostClient;
+
+	@Mock
+	private ProductClient productClient;
 
 	@AfterEach
 	void tearDown() {
@@ -193,6 +203,111 @@ class CheckoutControllerTest {
 	}
 
 	@Test
+	void shouldLoadBuyNowCheckoutPageWithProductAndCustomerData() {
+		CheckoutController controller = controller();
+		ProductModel product = product("product-1", new BigDecimal("25.00"));
+		CreditCardModel creditCard = creditCard("card-1");
+
+		when(productClient.findById("product-1")).thenReturn(product);
+		when(customerRestClient.getMyProfile()).thenReturn(customer());
+		when(creditCardClient.findAll()).thenReturn(List.of(creditCard));
+
+		ModelAndView modelAndView = controller.buyNowCheckout(
+				"product-1", 2, new RedirectAttributesModelMap());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("buy-now");
+		BuyNowCheckoutForm form = (BuyNowCheckoutForm) modelAndView.getModel().get("buyNowCheckoutForm");
+		assertThat(form.getProductId()).isEqualTo("product-1");
+		assertThat(form.getQuantity()).isEqualTo(2);
+		assertThat(form.getShippingInfo().getFullName()).isEqualTo("Alex Silva");
+		assertThat(modelAndView.getModel().get("product")).isEqualTo(product);
+		assertThat(modelAndView.getModel().get("unitPrice")).isEqualTo(new BigDecimal("25.00"));
+		assertThat(modelAndView.getModel().get("subtotal")).isEqualTo(new BigDecimal("50.00"));
+		assertThat(modelAndView.getModel().get("creditCards")).isEqualTo(List.of(creditCard));
+	}
+
+	@Test
+	void shouldBuyNowWithGatewayBalance() {
+		CheckoutController controller = controller();
+		BuyNowCheckoutForm form = buyNowCheckoutForm(PaymentMethod.GATEWAY_BALANCE);
+		ArgumentCaptor<BuyNowCheckoutModel> inputCaptor = ArgumentCaptor.forClass(BuyNowCheckoutModel.class);
+
+		when(productClient.findById("product-1")).thenReturn(product("product-1", new BigDecimal("25.00")));
+		when(checkoutClient.buyNow(any(BuyNowCheckoutModel.class))).thenReturn(order("order-1"));
+
+		ModelAndView modelAndView = controller.doBuyNowCheckout(
+				form, bindingResult(form, "buyNowCheckoutForm"), oauth2User(), new RedirectAttributesModelMap());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
+		verify(checkoutClient).buyNow(inputCaptor.capture());
+		BuyNowCheckoutModel input = inputCaptor.getValue();
+		assertThat(input.getProductId()).isEqualTo("product-1");
+		assertThat(input.getQuantity()).isEqualTo(2);
+		assertThat(input.getPaymentMethod()).isEqualTo("GATEWAY_BALANCE");
+		assertThat(input.getShipping().getRecipient().getFirstName()).isEqualTo("Alex");
+		assertThat(input.getBilling().getFirstName()).isEqualTo("Alex");
+	}
+
+	@Test
+	void shouldValidateCreditCardBeforeBuyNow() {
+		CheckoutController controller = controller();
+		BuyNowCheckoutForm form = buyNowCheckoutForm(PaymentMethod.CREDIT_CARD);
+		form.setCreditCardId("card-1");
+
+		when(productClient.findById("product-1")).thenReturn(product("product-1", new BigDecimal("25.00")));
+		when(creditCardClient.findById("card-1")).thenReturn(creditCard("card-1"));
+		when(checkoutClient.buyNow(any(BuyNowCheckoutModel.class))).thenReturn(order("order-1"));
+
+		ModelAndView modelAndView = controller.doBuyNowCheckout(
+				form, bindingResult(form, "buyNowCheckoutForm"), oauth2User(), new RedirectAttributesModelMap());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
+		verify(creditCardClient).findById("card-1");
+	}
+
+	@Test
+	void shouldReturnBuyNowCheckoutWithAlertWhenOrderingFails() {
+		CheckoutController controller = controller();
+		BuyNowCheckoutForm form = buyNowCheckoutForm(PaymentMethod.GATEWAY_BALANCE);
+
+		when(productClient.findById("product-1")).thenReturn(product("product-1", new BigDecimal("25.00")));
+		when(checkoutClient.buyNow(any(BuyNowCheckoutModel.class))).thenThrow(new RuntimeException("ordering unavailable"));
+
+		ModelAndView modelAndView = controller.doBuyNowCheckout(
+				form, bindingResult(form, "buyNowCheckoutForm"), oauth2User(), new RedirectAttributesModelMap());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("buy-now");
+		AlertMessage alertMessage = (AlertMessage) modelAndView.getModel().get("alertMessage");
+		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
+	}
+
+	@Test
+	void shouldPreviewBuyNowShippingCostAndReturnFormattedAmounts() {
+		LocaleContextHolder.setLocale(Locale.US);
+		CheckoutController controller = controller();
+		BuyNowShippingCostPreviewInput input = BuyNowShippingCostPreviewInput.builder()
+				.zipCode("12345")
+				.productId("product-1")
+				.quantity(2)
+				.build();
+
+		when(productClient.findById("product-1")).thenReturn(product("product-1", new BigDecimal("25.00")));
+		when(shippingCostClient.preview(ShippingCostPreviewInput.builder().zipCode("12345").build()))
+				.thenReturn(ShippingCostPreviewModel.builder()
+						.cost(new BigDecimal("12.34"))
+						.expectedDate(LocalDate.of(2026, 6, 20))
+						.build());
+
+		ResponseEntity<ShippingCostPreviewResponse> response = controller.previewBuyNowShippingCost(
+				input, bindingResult(input, "buyNowShippingCostPreviewInput"));
+
+		assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getFormattedCost()).isEqualTo("$12.34");
+		assertThat(response.getBody().getFormattedTotalAmount()).isEqualTo("$62.34");
+	}
+
+	@Test
 	void shouldPreviewShippingCostAndReturnFormattedAmounts() {
 		LocaleContextHolder.setLocale(Locale.US);
 		CheckoutController controller = controller();
@@ -247,7 +362,11 @@ class CheckoutControllerTest {
 	}
 
 	private CheckoutController controller() {
-		return new CheckoutController(shoppingCartService, checkoutClient, creditCardClient, customerRestClient, shippingCostClient);
+		EcommerceProperties ecommerceProperties = new EcommerceProperties();
+		ecommerceProperties.setPaymentProviderCreditCardTokenUrl("http://fastpay/tokenized-cards");
+		ecommerceProperties.setPaymentProviderPublicKey("public-key");
+		return new CheckoutController(shoppingCartService, checkoutClient, creditCardClient, customerRestClient,
+				shippingCostClient, productClient, ecommerceProperties);
 	}
 
 	private BeanPropertyBindingResult bindingResult(CheckoutForm form) {
@@ -282,6 +401,27 @@ class CheckoutControllerTest {
 				.billingInfo(personalInfo("Alex Silva"))
 				.shippingInfo(personalInfo("Alex Silva"))
 				.build();
+	}
+
+	private BuyNowCheckoutForm buyNowCheckoutForm(PaymentMethod paymentMethod) {
+		BuyNowCheckoutForm form = new BuyNowCheckoutForm();
+		form.setProductId("product-1");
+		form.setQuantity(2);
+		form.setPaymentMethod(paymentMethod);
+		form.setBillingInfo(personalInfo("Alex Silva"));
+		form.setShippingInfo(personalInfo("Alex Silva"));
+		return form;
+	}
+
+	private ProductModel product(String id, BigDecimal price) {
+		ProductModel product = new ProductModel();
+		product.setId(id);
+		product.setSlug("product-slug");
+		product.setName("Product Name");
+		product.setInStock(true);
+		product.setHasDiscount(false);
+		product.setRegularPrice(price);
+		return product;
 	}
 
 	private PersonalInfoModel personalInfo(String fullName) {

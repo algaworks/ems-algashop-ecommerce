@@ -26,7 +26,7 @@ public class EcommerceWebSecurityConfig {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 //				.requestMatchers("/").permitAll()
-				.requestMatchers("/checkout/**").authenticated() //, "/my-account/**"
+				.requestMatchers("/checkout/**", "/buy-now/**").authenticated() //, "/my-account/**"
 				.requestMatchers("/shopping-cart/add/**").authenticated() //, "/my-account/**"
 				.requestMatchers("/my-account/orders/**").authenticated()
 				.requestMatchers("/my-account/details/**").authenticated()

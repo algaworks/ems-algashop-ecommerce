@@ -16,6 +16,7 @@ public class EcommerceWebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(customerProfileRequiredInterceptor)
 				.addPathPatterns(
 						"/checkout/**",
+						"/buy-now/**",
 						"/shopping-cart",
 						"/shopping-cart/add/**",
 						"/my-account",

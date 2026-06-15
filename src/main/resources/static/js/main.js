@@ -176,6 +176,22 @@
         }
     });
 
+    $('.js-product-action-submit').on('click', function() {
+        let $button = $(this);
+        let $form = $button.closest('.js-product-detail-action-form');
+        let actionType = $button.data('action-type');
+
+        if (actionType == 'buy-now') {
+            $form.attr('action', $form.data('buy-now-action'));
+            $form.attr('method', 'get');
+            $form.find('.js-product-csrf-token').prop('disabled', true);
+        } else {
+            $form.attr('action', $form.data('cart-action'));
+            $form.attr('method', 'post');
+            $form.find('.js-product-csrf-token').prop('disabled', false);
+        }
+    });
+
     $('.js-on-click-remove-item').on('click', function(){
       let itemId = $(this).data('item-id');
       let token = $("meta[name='_csrf']").attr("content");
@@ -357,6 +373,23 @@
         return shippingZipCode().replace(/\D/g, '');
     }
 
+    function shippingCostPreviewUrl() {
+        return $('#checkoutForm').data('shipping-preview-url') || '/checkout/shipping-cost-preview';
+    }
+
+    function shippingCostPreviewPayload(zipCode) {
+        let payload = { zipCode: zipCode };
+        let productId = $('#checkoutForm input[name="productId"]').val();
+        let quantity = $('#checkoutForm input[name="quantity"]').val();
+
+        if (productId) {
+            payload.productId = productId;
+            payload.quantity = parseInt(quantity, 10) || 1;
+        }
+
+        return payload;
+    }
+
     function resetCheckoutShippingCost(message) {
         let subtotal = $('.js-order-total').data('subtotal');
         $('.js-shipping-cost').text('-');
@@ -390,10 +423,10 @@
 
         let currentRequest = $.ajax({
             contentType: 'application/json',
-            data: JSON.stringify({ zipCode: zipCode }),
+            data: JSON.stringify(shippingCostPreviewPayload(zipCode)),
             headers: headers,
             dataType: 'json',
-            url: '/checkout/shipping-cost-preview',
+            url: shippingCostPreviewUrl(),
             type: 'POST'
         });
 

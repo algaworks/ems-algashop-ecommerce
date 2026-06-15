@@ -36,7 +36,8 @@
             <div class="row">
 
                 <div class="col-md-7">
-                    <form id="checkoutForm" th:action="@{/checkout}" method="post" th:object="${checkoutForm}">
+                    <form id="checkoutForm" th:action="@{/checkout}" method="post" th:object="${checkoutForm}"
+                          th:attr="data-shipping-preview-url=@{/checkout/shipping-cost-preview}">
                         <!-- Shipping Details -->
                         <div class="shiping-details">
                             <div class="section-title">
