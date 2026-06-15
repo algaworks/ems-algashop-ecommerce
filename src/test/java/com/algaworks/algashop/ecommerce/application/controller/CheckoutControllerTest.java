@@ -3,29 +3,39 @@ package com.algaworks.algashop.ecommerce.application.controller;
 import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
 import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
+import com.algaworks.algashop.ecommerce.application.client.ShippingCostClient;
 import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CheckoutModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CreditCardModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
 import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
 import com.algaworks.algashop.ecommerce.application.model.client.PersonalInfoModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewInput;
+import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewResponse;
 import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +58,14 @@ class CheckoutControllerTest {
 
 	@Mock
 	private CustomerRestClient customerRestClient;
+
+	@Mock
+	private ShippingCostClient shippingCostClient;
+
+	@AfterEach
+	void tearDown() {
+		LocaleContextHolder.resetLocaleContext();
+	}
 
 	@Test
 	void shouldLoadCreditCardsAndPreserveCustomerDataOnCheckoutPage() {
@@ -174,17 +192,76 @@ class CheckoutControllerTest {
 		verify(checkoutClient, never()).checkout(any(CheckoutModel.class));
 	}
 
+	@Test
+	void shouldPreviewShippingCostAndReturnFormattedAmounts() {
+		LocaleContextHolder.setLocale(Locale.US);
+		CheckoutController controller = controller();
+		ShippingCostPreviewInput input = ShippingCostPreviewInput.builder()
+				.zipCode("12345")
+				.build();
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
+		when(shippingCostClient.preview(input)).thenReturn(ShippingCostPreviewModel.builder()
+				.cost(new BigDecimal("12.34"))
+				.expectedDate(LocalDate.of(2026, 6, 20))
+				.build());
+
+		ResponseEntity<ShippingCostPreviewResponse> response = controller.previewShippingCost(
+				input, bindingResult(input, "shippingCostPreviewInput"));
+
+		assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getCost()).isEqualByComparingTo("12.34");
+		assertThat(response.getBody().getExpectedDate()).isEqualTo(LocalDate.of(2026, 6, 20));
+		assertThat(response.getBody().getFormattedCost()).isEqualTo("$12.34");
+		assertThat(response.getBody().getFormattedTotalAmount()).isEqualTo("$112.34");
+	}
+
+	@Test
+	void shouldReturnBadRequestWhenShippingCostPreviewZipCodeIsInvalid() {
+		CheckoutController controller = controller();
+		ShippingCostPreviewInput input = ShippingCostPreviewInput.builder()
+				.zipCode("123")
+				.build();
+
+		ResponseEntity<ShippingCostPreviewResponse> response = controller.previewShippingCost(
+				input, bindingResult(input, "shippingCostPreviewInput"));
+
+		assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+		verify(shippingCostClient, never()).preview(any(ShippingCostPreviewInput.class));
+	}
+
+	@Test
+	void shouldReturnBadRequestWhenShippingCostPreviewFails() {
+		CheckoutController controller = controller();
+		ShippingCostPreviewInput input = ShippingCostPreviewInput.builder()
+				.zipCode("12345")
+				.build();
+
+		when(shippingCostClient.preview(input)).thenThrow(new RuntimeException("unavailable"));
+
+		ResponseEntity<ShippingCostPreviewResponse> response = controller.previewShippingCost(
+				input, bindingResult(input, "shippingCostPreviewInput"));
+
+		assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+	}
+
 	private CheckoutController controller() {
-		return new CheckoutController(shoppingCartService, checkoutClient, creditCardClient, customerRestClient);
+		return new CheckoutController(shoppingCartService, checkoutClient, creditCardClient, customerRestClient, shippingCostClient);
 	}
 
 	private BeanPropertyBindingResult bindingResult(CheckoutForm form) {
 		return new BeanPropertyBindingResult(form, "checkoutForm");
 	}
 
+	private BeanPropertyBindingResult bindingResult(Object target, String objectName) {
+		return new BeanPropertyBindingResult(target, objectName);
+	}
+
 	private ShoppingCartModel shoppingCart() {
 		ShoppingCartModel shoppingCart = new ShoppingCartModel();
 		shoppingCart.setTotalItems(1);
+		shoppingCart.setTotalAmount(new BigDecimal("100.00"));
 		return shoppingCart;
 	}
 

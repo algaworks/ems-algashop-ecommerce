@@ -109,7 +109,7 @@
                                     </div>
                                     <div class="order-col">
                                         <div>Shipping</div>
-                                        <div>FREE</div>
+                                        <div th:text="${order.shipping == null || order.shipping.cost == null || order.shipping.cost.signum() == 0 ? 'FREE' : #numbers.formatCurrency(order.shipping.cost)}">FREE</div>
                                     </div>
                                     <div class="order-col">
                                         <div><strong>TOTAL</strong></div>

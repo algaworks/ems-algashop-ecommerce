@@ -346,6 +346,83 @@
             });
     });
 
+    let checkoutShippingCostRequest = null;
+    let checkoutShippingCostTimer = null;
+
+    function shippingZipCode() {
+        return $('input[name="shippingInfo.address.zipCode"]').val() || '';
+    }
+
+    function normalizedShippingZipCode() {
+        return shippingZipCode().replace(/\D/g, '');
+    }
+
+    function resetCheckoutShippingCost(message) {
+        let subtotal = $('.js-order-total').data('subtotal');
+        $('.js-shipping-cost').text('-');
+        $('.js-order-total').text(subtotal);
+        $('.js-shipping-cost-status').text(message || '').toggleClass('hidden', !message);
+    }
+
+    function updateCheckoutShippingCost() {
+        if ($('#checkoutForm').length == 0 || $('.js-shipping-cost').length == 0) {
+            return;
+        }
+
+        let zipCode = normalizedShippingZipCode();
+
+        if (zipCode.length != 5) {
+            resetCheckoutShippingCost('Enter a valid zipcode.');
+            return;
+        }
+
+        if (checkoutShippingCostRequest) {
+            checkoutShippingCostRequest.abort();
+        }
+
+        let token = $("meta[name='_csrf']").attr("content");
+        let headerName = $("meta[name='_csrf_header']").attr("content");
+        let headers = {};
+        headers[headerName] = token;
+
+        $('.js-shipping-cost').text('Calculating...');
+        $('.js-shipping-cost-status').addClass('hidden').text('');
+
+        let currentRequest = $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify({ zipCode: zipCode }),
+            headers: headers,
+            dataType: 'json',
+            url: '/checkout/shipping-cost-preview',
+            type: 'POST'
+        });
+
+        checkoutShippingCostRequest = currentRequest;
+
+        currentRequest.done(function(data) {
+            $('.js-shipping-cost').text(data.formattedCost || '-');
+            $('.js-order-total').text(data.formattedTotalAmount || $('.js-order-total').data('subtotal'));
+            $('.js-shipping-cost-status').addClass('hidden').text('');
+        }).fail(function(_, status) {
+            if (status == 'abort') {
+                return;
+            }
+            resetCheckoutShippingCost('Shipping unavailable.');
+        }).always(function() {
+            if (checkoutShippingCostRequest == currentRequest) {
+                checkoutShippingCostRequest = null;
+            }
+        });
+    }
+
+    function scheduleCheckoutShippingCostUpdate() {
+        clearTimeout(checkoutShippingCostTimer);
+        checkoutShippingCostTimer = setTimeout(updateCheckoutShippingCost, 300);
+    }
+
+    $('input[name="shippingInfo.address.zipCode"]').on('input change', scheduleCheckoutShippingCostUpdate);
+    updateCheckoutShippingCost();
+
     $('#checkoutForm').submit(function(e) {
         //e.preventDefault();
         let paymentMethod = $('input[name="paymentMethod"]:checked').val();

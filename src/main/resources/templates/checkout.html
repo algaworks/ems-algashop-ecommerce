@@ -144,11 +144,18 @@
                         </div>
                         <div class="order-col">
                             <div>Shipping</div>
-                            <div><strong>FREE</strong></div>
+                            <div>
+                                <strong class="js-shipping-cost">Calculating...</strong>
+                                <small class="js-shipping-cost-status hidden"></small>
+                            </div>
                         </div>
                         <div class="order-col">
                             <div><strong>TOTAL</strong></div>
-                            <div><strong class="order-total" th:text="${#numbers.formatCurrency(shoppingCart.totalAmount)}">$2940.00</strong></div>
+                            <div>
+                                <strong class="order-total js-order-total"
+                                        th:attr="data-subtotal=${#numbers.formatCurrency(shoppingCart.totalAmount)}"
+                                        th:text="${#numbers.formatCurrency(shoppingCart.totalAmount)}">$2940.00</strong>
+                            </div>
                         </div>
                     </div>
                     <div class="payment-method" th:object="${checkoutForm}">

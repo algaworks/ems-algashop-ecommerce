@@ -3,6 +3,7 @@ package com.algaworks.algashop.ecommerce.application.controller;
 import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
 import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
 import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
+import com.algaworks.algashop.ecommerce.application.client.ShippingCostClient;
 import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
@@ -13,14 +14,18 @@ import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
 
 @Controller
@@ -32,6 +37,7 @@ public class CheckoutController {
 	private final CheckoutClient checkoutClient;
 	private final CreditCardClient creditCardClient;
 	private final CustomerRestClient customerManagementAPIClient;
+	private final ShippingCostClient shippingCostClient;
 
 	@GetMapping("/checkout")
 	public ModelAndView checkout() {
@@ -130,6 +136,31 @@ public class CheckoutController {
 		return new ModelAndView("redirect:/my-account/orders/" + checkout.getId());
 	}
 
+	@PostMapping("/checkout/shipping-cost-preview")
+	public ResponseEntity<ShippingCostPreviewResponse> previewShippingCost(
+			@RequestBody @Valid ShippingCostPreviewInput input, BindingResult bindingResult) {
+		if (bindingResult.hasErrors() || isInvalidZipCode(input)) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		try {
+			ShippingCostPreviewModel preview = shippingCostClient.preview(input);
+			BigDecimal cost = preview == null || preview.getCost() == null ? BigDecimal.ZERO : preview.getCost();
+			BigDecimal subtotal = currentShoppingCartTotalAmount();
+			BigDecimal totalAmount = subtotal.add(cost);
+
+			return ResponseEntity.ok(ShippingCostPreviewResponse.builder()
+					.cost(cost)
+					.expectedDate(preview == null ? null : preview.getExpectedDate())
+					.formattedCost(formatCurrency(cost))
+					.formattedTotalAmount(formatCurrency(totalAmount))
+					.build());
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
 	private String resolveCreditCardId(CheckoutForm checkoutForm) {
 		if (!PaymentMethod.CREDIT_CARD.equals(checkoutForm.getPaymentMethod())) {
 			return null;
@@ -151,6 +182,24 @@ public class CheckoutController {
 			log.error(e.getMessage(), e);
 			return List.of();
 		}
+	}
+
+	private boolean isInvalidZipCode(ShippingCostPreviewInput input) {
+		return input == null
+				|| !StringUtils.hasText(input.getZipCode())
+				|| !input.getZipCode().matches("\\d{5}");
+	}
+
+	private BigDecimal currentShoppingCartTotalAmount() {
+		ShoppingCartModel shoppingCart = shoppingCartService.findCurrentShoppingCart();
+		if (shoppingCart == null || shoppingCart.getTotalAmount() == null) {
+			return BigDecimal.ZERO;
+		}
+		return shoppingCart.getTotalAmount();
+	}
+
+	private String formatCurrency(BigDecimal value) {
+		return NumberFormat.getCurrencyInstance(LocaleContextHolder.getLocale()).format(value);
 	}
 
 }
