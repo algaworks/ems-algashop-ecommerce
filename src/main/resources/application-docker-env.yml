@@ -3,7 +3,7 @@ algashop:
   auth-with-alga-security-path: /oauth2/authorization/algashop-ecommerce-web
   payment-provider-public-key: tDBmh0ZiDrmaZ8BVQD7i9UYdcj9KtZUk
   payment-provider-credit-card-token-url: http://fastpay:9995/api/v1/public/tokenized-cards
-  authorization-server-url: http://algashop-authorization-server:8081
+  authorization-server-url: http://auth.algashop.local:8081
 
 spring:
   data:
@@ -47,4 +47,4 @@ spring:
             client-name: algashop-ecommerce-m2m
         provider:
           algashop-auth:
-            issuer-uri: http://auth.algashop.local:8081
+            issuer-uri: ${algashop.authorization-server-url}
