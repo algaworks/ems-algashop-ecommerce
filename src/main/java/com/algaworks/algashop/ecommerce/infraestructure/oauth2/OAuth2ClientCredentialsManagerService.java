@@ -59,7 +59,7 @@ public class OAuth2ClientCredentialsManagerService {
 
 	private boolean isTokenExpired(OAuth2AuthorizedClient oAuth2AuthorizedClient) {
 		if (oAuth2AuthorizedClient.getAccessToken().getExpiresAt() == null) {
-			return false; //TODO Token que nunca expira?
+			return false;
 		}
 		return Instant.now()
 				.isAfter(oAuth2AuthorizedClient.getAccessToken().getExpiresAt());
