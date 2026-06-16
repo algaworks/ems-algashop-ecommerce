@@ -1,8 +1,8 @@
 package com.algaworks.algashop.ecommerce.application.controller;
 
 import com.algaworks.algashop.ecommerce.application.client.ProductClient;
-import com.algaworks.algashop.ecommerce.application.client.ShoppingCartClient;
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartItemInput;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.model.page.ShoppingCartPageModel;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
@@ -11,7 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,6 +24,8 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequiredArgsConstructor
 @Slf4j
 public class ShoppingCartController {
+
+	private static final String ALERT_MESSAGE_KEY = "alertMessage";
 
 	private final ProductClient productClient;
 	private final ShoppingCartService shoppingCartClient;
@@ -58,14 +63,14 @@ public class ShoppingCartController {
 
 		try {
 			shoppingCartClient.addItem(new ShoppingCartItemInput(productId, quantity));
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.success("Product added to the cart!"));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.success("Product added to the cart!"));
 		} catch (HttpClientErrorException.BadRequest e) {
 			ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
 			log.warn(e.getMessage(), e);
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger(problemDetail.getDetail()));
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger(
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger(problemDetail.getDetail()));
+		} catch (Exception _) {
+			log.warn("Error adding item to cart", new Exception());
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger(
 					"An unknown error occurred while trying to add the item to the cart. Please try again later."
 			));
 		}

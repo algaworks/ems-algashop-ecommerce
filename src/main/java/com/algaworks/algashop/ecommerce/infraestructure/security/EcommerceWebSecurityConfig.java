@@ -17,17 +17,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class EcommerceWebSecurityConfig {
 
-	//todo rever
-//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/config/SecurityConfig.java
-//https://docs.spring.io/spring-security/reference/servlet/oauth2/login/advanced.html
-
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
-//				.requestMatchers("/").permitAll()
-				.requestMatchers("/checkout/**", "/buy-now/**").authenticated() //, "/my-account/**"
-				.requestMatchers("/shopping-cart/add/**").authenticated() //, "/my-account/**"
+				.requestMatchers("/checkout/**", "/buy-now/**").authenticated()
+				.requestMatchers("/shopping-cart/add/**").authenticated()
 				.requestMatchers("/my-account/orders/**").authenticated()
 				.requestMatchers("/my-account/details/**").authenticated()
 				.requestMatchers("/my-account/address", "/my-account/address/**").authenticated()
@@ -35,12 +30,8 @@ public class EcommerceWebSecurityConfig {
 				.requestMatchers("/my-account/complete-your-profile", "/my-account/complete-your-profile/**").authenticated()
 				.anyRequest().permitAll()
 			)
-//				.logout(l -> l.logoutSuccessUrl("/").logoutUrl("/logout"))
-// todo validar se precisa https://docs.spring.io/spring-security/reference/reactive/oauth2/login/logout.html
-//			.formLogin(f -> f.disable())
 			.oauth2Login(o -> o.userInfoEndpoint(withDefaults())
-				//https://github.com/spring-projects/spring-authorization-server/blob/main/samples/demo-client/src/main/java/sample/web/AuthorizationController.java
-				.loginPage("/my-account") //http://algashop-ecommerce:9080/oauth2/authorization/oidc
+				.loginPage("/my-account")
 			).logout(logout -> logout
 						.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
 						.invalidateHttpSession(true)
@@ -54,23 +45,12 @@ public class EcommerceWebSecurityConfig {
 		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
 				new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
 
-
-		// Define para onde o provedor deve redirecionar o usuário após o logout no servidor deles
 		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}?logout-success");
-
 		return oidcLogoutSuccessHandler;
 	}
 
-//	@Bean
-//	public ClientRegistrationRepository clientRegistrationRepository() {
-//		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
-//	}
-
 	@Bean
-	public OAuth2AuthorizedClientRepository authorizedClientRepository() { //J
-//		OAuth2AuthorizedClientService authorizedClientService
+	public OAuth2AuthorizedClientRepository authorizedClientRepository() {
 		return new HttpSessionOAuth2AuthorizedClientRepository();
-//		return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
-//		return new JdbcOAuth2AuthorizedClientService(jdbcOperations, authorizedClientService);
 	}
 }

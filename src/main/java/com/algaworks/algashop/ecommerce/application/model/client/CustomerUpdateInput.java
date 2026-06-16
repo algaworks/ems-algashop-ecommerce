@@ -23,7 +23,6 @@ public class CustomerUpdateInput {
 	@NotBlank
 	private String phone;
 
-	@NotNull
 	private boolean promotionNotificationsAllowed;
 
 	@Valid

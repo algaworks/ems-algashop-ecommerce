@@ -2,18 +2,13 @@ package com.algaworks.algashop.ecommerce.application.controller;
 
 import com.algaworks.algashop.ecommerce.application.client.CategoryClient;
 import com.algaworks.algashop.ecommerce.application.client.ProductClient;
-import com.algaworks.algashop.ecommerce.application.client.ShoppingCartClient;
 import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.filter.ProductFilter;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.model.page.ProductCatalogPageModel;
 import com.algaworks.algashop.ecommerce.application.model.page.ProductPageModel;
-import com.algaworks.algashop.ecommerce.infraestructure.security.AlgaShopSecurityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 

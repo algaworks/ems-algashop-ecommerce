@@ -3,7 +3,6 @@ package com.algaworks.algashop.ecommerce.application.client;
 import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewInput;
 import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewModel;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

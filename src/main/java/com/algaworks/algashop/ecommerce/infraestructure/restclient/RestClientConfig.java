@@ -1,6 +1,5 @@
 package com.algaworks.algashop.ecommerce.infraestructure.restclient;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.restclient.autoconfigure.RestClientBuilderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +24,6 @@ public class RestClientConfig {
 	}
 	
 	@Bean
-	@Qualifier("userAuthenticatedRestClient")
 	RestClient userAuthenticatedRestClient(RestClientBuilderConfigurer configurer,
 			   OAuth2UserTokenInterceptor oAuth2UserTokenInterceptor) {
 		return configurer.configure(RestClient.builder())

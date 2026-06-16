@@ -24,6 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Slf4j
 public class CustomerProfileController {
 
+	private static final String EMAIL_ATTR = "email";
+
 	private final CustomerRestClient customerRestClient;
 
 	@GetMapping("/my-account/complete-your-profile")
@@ -31,10 +33,10 @@ public class CustomerProfileController {
 		try {
 			customerRestClient.getMyProfile();
 			return new ModelAndView("redirect:/my-account");
-		} catch (HttpClientErrorException.NotFound e) {
+		} catch (HttpClientErrorException.NotFound _) {
 			return newCustomerProfileView(newCustomerProfileForm(userDetails), userDetails, null);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+		} catch (Exception _) {
+			log.error("Error loading customer profile", new Exception());
 			return newCustomerProfileView(newCustomerProfileForm(userDetails), userDetails, AlertMessage.danger(
 					"An unknown error occurred while trying to load your profile. Please try again later."));
 		}
@@ -48,10 +50,10 @@ public class CustomerProfileController {
 		try {
 			customerRestClient.getMyProfile();
 			return new ModelAndView("redirect:/my-account");
-		} catch (HttpClientErrorException.NotFound e) {
+		} catch (HttpClientErrorException.NotFound _) {
 			// The profile is missing, so this request is allowed to create it.
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+		} catch (Exception _) {
+			log.error("Error loading customer profile", new Exception());
 			return newCustomerProfileView(newCustomerProfileForm, userDetails, AlertMessage.danger(
 					"An unknown error occurred while trying to load your profile. Please try again later."));
 		}
@@ -61,7 +63,7 @@ public class CustomerProfileController {
 		}
 
 		FullNameParser.NameParts nameParts = FullNameParser.split(newCustomerProfileForm.getFullName());
-		String email = userDetails.getAttribute("email");
+		String email = userDetails.getAttribute(EMAIL_ATTR);
 		if (email == null || email.isBlank()) {
 			throw new AccessDeniedException("Authenticated user e-mail not found.");
 		}

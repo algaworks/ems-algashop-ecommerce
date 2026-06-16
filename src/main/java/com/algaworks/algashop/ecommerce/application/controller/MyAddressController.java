@@ -5,6 +5,7 @@ import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
 import com.algaworks.algashop.ecommerce.application.model.client.CustomerUpdateInput;
 import com.algaworks.algashop.ecommerce.application.model.form.EditAddressForm;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
+import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.algaworks.algashop.ecommerce.application.util.FullNameParser;
 
 @Controller
 @RequiredArgsConstructor

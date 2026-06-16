@@ -1,14 +1,12 @@
 package com.algaworks.algashop.ecommerce.application.model.client;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
-@EqualsAndHashCode
 public class PaymentModel {
 
 	private UUID id;

@@ -1,7 +1,6 @@
 package com.algaworks.algashop.ecommerce.application.model.page;
 
 import com.algaworks.algashop.ecommerce.application.model.client.CategoryModel;
-import com.algaworks.algashop.ecommerce.application.model.client.CustomerInput;
 import com.algaworks.algashop.ecommerce.application.model.form.NewCustomerForm;
 import lombok.Builder;
 import lombok.Data;

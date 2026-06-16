@@ -1,6 +1,7 @@
 package com.algaworks.algashop.ecommerce.application.controller;
 
-import com.algaworks.algashop.ecommerce.application.client.*;
+import com.algaworks.algashop.ecommerce.application.client.OrderClient;
+import com.algaworks.algashop.ecommerce.application.client.UserAPIClient;
 import com.algaworks.algashop.ecommerce.application.exception.ErrorMessages;
 import com.algaworks.algashop.ecommerce.application.model.client.AuthUserInput;
 import com.algaworks.algashop.ecommerce.application.model.filter.OrderFilter;

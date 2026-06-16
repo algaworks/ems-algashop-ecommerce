@@ -1,6 +1,7 @@
 package com.algaworks.algashop.ecommerce.application.client;
 
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderModelPage;
 import com.algaworks.algashop.ecommerce.application.model.filter.OrderFilter;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import org.springframework.beans.factory.annotation.Qualifier;

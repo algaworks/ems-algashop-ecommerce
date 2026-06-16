@@ -28,7 +28,7 @@ public class PageLinkModel {
 		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
 			String queryKey = entry.getKey();
 			for (String queryValue : entry.getValue()) {
-				if (!queryKey.equals("page") && !queryValue.equals("size")) {
+				if (!queryKey.equals("page") && !queryKey.equals("size")) {
 					link.append("&").append(queryKey).append("=").append(queryValue);
 				}
 			}

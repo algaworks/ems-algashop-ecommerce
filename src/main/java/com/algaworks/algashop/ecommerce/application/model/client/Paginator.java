@@ -8,7 +8,9 @@ import java.util.List;
 
 public class Paginator {
 
-    public static List<PageLinkModel> calculatePages(PageModel pageModel, String path) {
+	private Paginator() {}
+
+    public static List<PageLinkModel> calculatePages(PageModel<?> pageModel, String path) {
         return calculatePages(pageModel.getTotalPages(), pageModel.getNumber()+1, pageModel.getSize(), path, new LinkedMultiValueMap<>());
     }
 
@@ -49,7 +51,7 @@ public class Paginator {
         return pagesToShow;
     }
 
-    public static List<PageLinkModel> calculatePages(PageModel pageModel, String path, MultiValueMap<String, String> queryParams) {
+    public static List<PageLinkModel> calculatePages(PageModel<?> pageModel, String path, MultiValueMap<String, String> queryParams) {
 		return calculatePages(pageModel.getTotalPages(), pageModel.getNumber() + 1, pageModel.getSize(), path, queryParams);
     }
 }

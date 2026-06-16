@@ -2,7 +2,6 @@ package com.algaworks.algashop.ecommerce.application.model.page;
 
 import com.algaworks.algashop.ecommerce.application.model.client.CategoryModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
-import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
 import com.algaworks.algashop.ecommerce.application.model.filter.ProductFilter;
 import lombok.Builder;
 import lombok.Data;

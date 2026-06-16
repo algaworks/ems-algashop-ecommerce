@@ -1,8 +1,10 @@
 package com.algaworks.algashop.ecommerce.application.client;
 
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.ImageModel;
+import com.algaworks.algashop.ecommerce.application.model.client.PageModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ProductModelPage;
 import com.algaworks.algashop.ecommerce.application.model.filter.ProductFilter;
-import com.algaworks.algashop.ecommerce.application.model.page.ProductCatalogPageModel;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -55,6 +57,7 @@ public class ProductClient {
 				.retrieve()
 				.toEntity(ImageModel[].class);
 
-		return Arrays.asList(responseEntity.getBody());
+		ImageModel[] body = responseEntity.getBody();
+		return body != null ? Arrays.asList(body) : List.of();
 	}
 }

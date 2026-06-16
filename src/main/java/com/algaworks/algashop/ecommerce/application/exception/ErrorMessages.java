@@ -1,6 +1,9 @@
 package com.algaworks.algashop.ecommerce.application.exception;
 
 public class ErrorMessages {
+
+	private ErrorMessages() {}
+
 	public static final String END_USER_GENERIC_ERROR_MESSAGE
 			= "An unexpected internal error occurred in the system. Please try again later, and if the issue persists, " +
 			"contact the system administrator.";

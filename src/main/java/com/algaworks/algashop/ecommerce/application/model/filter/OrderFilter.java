@@ -2,7 +2,11 @@ package com.algaworks.algashop.ecommerce.application.model.filter;
 
 import com.algaworks.algashop.ecommerce.application.model.client.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -40,7 +44,6 @@ public class OrderFilter {
 
 		Iterator<Sort.Order> iterator = pageable.getSort().stream().iterator();
 
-		//Apenas a primeira ordenação é considerada
 		if (iterator.hasNext()) {
 			Sort.Order order = iterator.next();
 			builder.sort(SortType.valueOf(order.getProperty()));

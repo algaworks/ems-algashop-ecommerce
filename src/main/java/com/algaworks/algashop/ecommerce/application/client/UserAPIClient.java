@@ -1,6 +1,6 @@
 package com.algaworks.algashop.ecommerce.application.client;
 
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.AuthUserInput;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;

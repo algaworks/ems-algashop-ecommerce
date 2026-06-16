@@ -3,7 +3,6 @@ package com.algaworks.algashop.ecommerce.application.model.page;
 import com.algaworks.algashop.ecommerce.application.model.client.CategoryModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ImageModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
-import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.servlet.ModelAndView;

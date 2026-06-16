@@ -1,16 +1,12 @@
 package com.algaworks.algashop.ecommerce.application.controller;
 
-import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
-import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
-import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
-import com.algaworks.algashop.ecommerce.application.client.ProductClient;
-import com.algaworks.algashop.ecommerce.application.client.ShippingCostClient;
+import com.algaworks.algashop.ecommerce.application.client.*;
 import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.form.BuyNowCheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
-import com.algaworks.algashop.ecommerce.application.model.page.BuyNowCheckoutPageModel;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
+import com.algaworks.algashop.ecommerce.application.model.page.BuyNowCheckoutPageModel;
 import com.algaworks.algashop.ecommerce.application.model.page.CheckoutPageModel;
 import com.algaworks.algashop.ecommerce.application.properties.EcommerceProperties;
 import com.algaworks.algashop.ecommerce.application.service.ShoppingCartService;
@@ -25,7 +21,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -39,6 +40,9 @@ import java.util.List;
 @Slf4j
 public class CheckoutController {
 
+	private static final String REDIRECT_SHOPPING_CART = "redirect:/shopping-cart";
+	private static final String ALERT_MESSAGE_KEY = "alertMessage";
+
 	private final ShoppingCartService shoppingCartService;
 	private final CheckoutClient checkoutClient;
 	private final CreditCardClient creditCardClient;
@@ -51,19 +55,19 @@ public class CheckoutController {
 	public ModelAndView checkout() {
 		try {
 			if (shoppingCartService.findCurrentShoppingCart().getTotalItems() < 1) {
-				return new ModelAndView("redirect:/shopping-cart");
+				return new ModelAndView(REDIRECT_SHOPPING_CART);
 			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return new ModelAndView("redirect:/shopping-cart");
+		} catch (Exception _) {
+			log.error("Error loading shopping cart", new Exception());
+			return new ModelAndView(REDIRECT_SHOPPING_CART);
 		}
 
 		CustomerModel customerModel;
 
 		try {
 			customerModel = customerManagementAPIClient.getMyProfile();
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+		} catch (Exception _) {
+			log.error("Error loading customer profile", new Exception());
 			return checkout(new CheckoutForm());
 		}
 
@@ -91,7 +95,7 @@ public class CheckoutController {
 	public ModelAndView doCheckout(@Valid @ModelAttribute("checkoutForm") CheckoutForm checkoutForm,
 								   BindingResult bindingResult, @AuthenticationPrincipal OAuth2User userDetails) {
 		if (shoppingCartService.findCurrentShoppingCart().getTotalItems() < 1) {
-			return new ModelAndView("redirect:/shopping-cart");
+			return new ModelAndView(REDIRECT_SHOPPING_CART);
 		}
 
 		if (bindingResult.hasErrors()) {

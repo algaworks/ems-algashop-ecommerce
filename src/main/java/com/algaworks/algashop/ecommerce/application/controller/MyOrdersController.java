@@ -2,13 +2,17 @@ package com.algaworks.algashop.ecommerce.application.controller;
 
 import com.algaworks.algashop.ecommerce.application.client.OrderClient;
 import com.algaworks.algashop.ecommerce.application.exception.ErrorMessages;
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderModelPage;
+import com.algaworks.algashop.ecommerce.application.model.client.OrderStatus;
+import com.algaworks.algashop.ecommerce.application.model.client.PageLinkModel;
+import com.algaworks.algashop.ecommerce.application.model.client.Paginator;
 import com.algaworks.algashop.ecommerce.application.model.filter.OrderFilter;
 import com.algaworks.algashop.ecommerce.application.model.page.AlertMessage;
 import com.algaworks.algashop.ecommerce.application.model.page.MyOrderDetailPageModel;
 import com.algaworks.algashop.ecommerce.application.model.page.MyOrdersPageModel;
 import com.algaworks.algashop.ecommerce.application.util.SafeEnumConverterUtil;
-import io.micrometer.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -98,7 +102,7 @@ public class MyOrdersController {
 			}
 			return ResponseEntity.ok().build();
 		} catch (HttpClientErrorException.NotFound e) { //t.HttpClientErrorException$Unauthorized
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().build();
 		}

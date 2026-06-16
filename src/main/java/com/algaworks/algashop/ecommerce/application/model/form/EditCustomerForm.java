@@ -31,7 +31,6 @@ public class EditCustomerForm {
 	@NotBlank
 	private String document;
 
-	@NotNull
 	private boolean allowPromotionNotifications;
 
 	public static EditCustomerForm of(CustomerModel customer) {

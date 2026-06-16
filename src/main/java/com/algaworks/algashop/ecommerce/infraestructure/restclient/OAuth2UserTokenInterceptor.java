@@ -24,15 +24,14 @@ public class OAuth2UserTokenInterceptor implements ClientHttpRequestInterceptor 
     private final AlgaShopSecurityService algaShopSecurityService;
     private final OAuth2AuthorizedClientManager authorizedClientManager;
 
-    @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-                ClientHttpRequestExecution execution) throws IOException {
-        var possibleAuthentication = algaShopSecurityService.getAuthentication();
+	@Override
+	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
+				ClientHttpRequestExecution execution) throws IOException {
+		var possibleAuthentication = algaShopSecurityService.getAuthentication();
 
-        if (possibleAuthentication.isEmpty()) {
-            throw new OAuth2UserAuthorizationRequiredException("OAuth2 user authorization is required.");
-//            return execution.execute(request, body);
-        }
+		if (possibleAuthentication.isEmpty()) {
+			throw new OAuth2UserAuthorizationRequiredException("OAuth2 user authorization is required.");
+		}
 
         var authentication = possibleAuthentication.get();
 

@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 @Service
@@ -61,7 +61,7 @@ public class OAuth2ClientCredentialsManagerService {
 		if (oAuth2AuthorizedClient.getAccessToken().getExpiresAt() == null) {
 			return false; //TODO Token que nunca expira?
 		}
-		return OffsetDateTime.now().toInstant()
+		return Instant.now()
 				.isAfter(oAuth2AuthorizedClient.getAccessToken().getExpiresAt());
 	}
 
@@ -69,12 +69,12 @@ public class OAuth2ClientCredentialsManagerService {
 		OAuth2AuthorizeRequest.Builder request = OAuth2AuthorizeRequest
 				.withClientRegistrationId(clientId);
 
-		if (principal instanceof String) {
-			request.principal((String) principal);
+		if (principal instanceof String s) {
+			request.principal(s);
 		}
 
-		if (principal instanceof Authentication) {
-			request.principal((Authentication) principal);
+		if (principal instanceof Authentication auth) {
+			request.principal(auth);
 		}
 
 		OAuth2AuthorizedClient auth2AuthorizedClient = authorizedClientManager.authorize(request.build());

@@ -3,7 +3,6 @@ package com.algaworks.algashop.ecommerce.application.service;
 import com.algaworks.algashop.ecommerce.application.client.CategoryClient;
 import com.algaworks.algashop.ecommerce.application.model.client.CategoryModel;
 import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
-import com.algaworks.algashop.ecommerce.infraestructure.oauth2.OAuth2UserAuthorizationRequiredException;
 import com.algaworks.algashop.ecommerce.infraestructure.security.AlgaShopSecurityService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

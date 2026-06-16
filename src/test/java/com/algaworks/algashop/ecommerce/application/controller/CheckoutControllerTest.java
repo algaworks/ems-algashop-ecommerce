@@ -1,23 +1,7 @@
 package com.algaworks.algashop.ecommerce.application.controller;
 
-import com.algaworks.algashop.ecommerce.application.client.CheckoutClient;
-import com.algaworks.algashop.ecommerce.application.client.CreditCardClient;
-import com.algaworks.algashop.ecommerce.application.client.CustomerRestClient;
-import com.algaworks.algashop.ecommerce.application.client.ProductClient;
-import com.algaworks.algashop.ecommerce.application.client.ShippingCostClient;
-import com.algaworks.algashop.ecommerce.application.model.client.AddressModel;
-import com.algaworks.algashop.ecommerce.application.model.client.BuyNowCheckoutModel;
-import com.algaworks.algashop.ecommerce.application.model.client.BuyNowShippingCostPreviewInput;
-import com.algaworks.algashop.ecommerce.application.model.client.CheckoutModel;
-import com.algaworks.algashop.ecommerce.application.model.client.CreditCardModel;
-import com.algaworks.algashop.ecommerce.application.model.client.CustomerModel;
-import com.algaworks.algashop.ecommerce.application.model.client.OrderModel;
-import com.algaworks.algashop.ecommerce.application.model.client.PersonalInfoModel;
-import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
-import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewInput;
-import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewModel;
-import com.algaworks.algashop.ecommerce.application.model.client.ShippingCostPreviewResponse;
-import com.algaworks.algashop.ecommerce.application.model.client.ShoppingCartModel;
+import com.algaworks.algashop.ecommerce.application.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.*;
 import com.algaworks.algashop.ecommerce.application.model.form.BuyNowCheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.CheckoutForm;
 import com.algaworks.algashop.ecommerce.application.model.form.PaymentMethod;
@@ -47,9 +31,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CheckoutControllerTest {

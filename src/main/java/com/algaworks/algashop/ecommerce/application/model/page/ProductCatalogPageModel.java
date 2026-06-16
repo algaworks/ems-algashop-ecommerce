@@ -1,6 +1,8 @@
 package com.algaworks.algashop.ecommerce.application.model.page;
 
-import com.algaworks.algashop.ecommerce.application.model.client.*;
+import com.algaworks.algashop.ecommerce.application.model.client.PageLinkModel;
+import com.algaworks.algashop.ecommerce.application.model.client.PageModel;
+import com.algaworks.algashop.ecommerce.application.model.client.ProductModel;
 import com.algaworks.algashop.ecommerce.application.model.filter.ProductFilter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
