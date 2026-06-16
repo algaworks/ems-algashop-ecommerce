@@ -32,7 +32,11 @@ public class HomeController {
 	@GetMapping("/")
 	public ModelAndView index() {
 		if (properties.getFeatures().isHomeBffEnabled()) {
-			return buildHomeFromBff().toModelAndView();
+			try {
+				return buildHomeFromBff().toModelAndView();
+			} catch (Exception _) {
+				log.warn("Failed to fetch home from BFF, falling back to legacy clients");
+			}
 		}
 
 		return buildHomeFromLegacyClients().toModelAndView();

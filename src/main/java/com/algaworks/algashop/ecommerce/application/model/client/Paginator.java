@@ -15,40 +15,43 @@ public class Paginator {
     }
 
     public static List<PageLinkModel> calculatePages(int totalPages, int actualPage, int size, String path, MultiValueMap<String, String> queryParams) {
-        List<PageLinkModel> pagesToShow = new ArrayList<>();
-
-        // Verifica se o número total de páginas é menor que 5
         int maxPages = 5;
         if (totalPages <= maxPages) {
-            for (int i = 1; i <= totalPages; i++) {
-                pagesToShow.add(new PageLinkModel(path, size, i, i == actualPage,
-                        i == 1, i == totalPages, i < totalPages, i > 1, queryParams));
-            }
+            return buildPagesFromStart(totalPages, actualPage, size, path, queryParams);
+        } else if (actualPage <= 3) {
+            return buildPagesFromStart(maxPages, actualPage, size, path, queryParams);
+        } else if (actualPage > totalPages - 3) {
+            return buildPagesFromEnd(totalPages, actualPage, size, path, queryParams);
         } else {
-            // Se a página atual estiver próxima do início
-            if (actualPage <= 3) {
-                for (int i = 1; i <= maxPages; i++) {
-                    pagesToShow.add(new PageLinkModel(path, size, i, i == actualPage,
-                            i == 1, i == totalPages, i < totalPages, i > 1, queryParams));
-                }
-            }
-            // Se a página atual estiver próxima do final
-            else if (actualPage > totalPages - 3) {
-                for (int i = totalPages - 4; i <= totalPages; i++) {
-                    pagesToShow.add(new PageLinkModel(path, size, i, i == actualPage,
-                            i == 1, i == totalPages, i < totalPages, i > 1, queryParams));
-                }
-            }
-            // Se a página atual estiver no meio
-            else {
-                for (int i = actualPage - 2; i <= actualPage + 2; i++) {
-                    pagesToShow.add(new PageLinkModel(path, size, i, i == actualPage,i == 1,
-                            i == totalPages, i < totalPages, i > 1, queryParams));
-                }
-            }
+            return buildPagesFromMiddle(actualPage, size, path, queryParams);
         }
+    }
 
-        return pagesToShow;
+    private static List<PageLinkModel> buildPagesFromStart(int maxPages, int actualPage, int size, String path, MultiValueMap<String, String> queryParams) {
+        List<PageLinkModel> pages = new ArrayList<>();
+        for (int i = 1; i <= maxPages; i++) {
+            pages.add(new PageLinkModel(path, size, i, i == actualPage,
+                    i == 1, i == maxPages, i < maxPages, i > 1, queryParams));
+        }
+        return pages;
+    }
+
+    private static List<PageLinkModel> buildPagesFromEnd(int totalPages, int actualPage, int size, String path, MultiValueMap<String, String> queryParams) {
+        List<PageLinkModel> pages = new ArrayList<>();
+        for (int i = totalPages - 4; i <= totalPages; i++) {
+            pages.add(new PageLinkModel(path, size, i, i == actualPage,
+                    i == 1, i == totalPages, i < totalPages, i > 1, queryParams));
+        }
+        return pages;
+    }
+
+    private static List<PageLinkModel> buildPagesFromMiddle(int actualPage, int size, String path, MultiValueMap<String, String> queryParams) {
+        List<PageLinkModel> pages = new ArrayList<>();
+        for (int i = actualPage - 2; i <= actualPage + 2; i++) {
+            pages.add(new PageLinkModel(path, size, i, i == actualPage, i == 1,
+                    i > actualPage + 2, i < actualPage + 2, i > 1, queryParams));
+        }
+        return pages;
     }
 
     public static List<PageLinkModel> calculatePages(PageModel<?> pageModel, String path, MultiValueMap<String, String> queryParams) {

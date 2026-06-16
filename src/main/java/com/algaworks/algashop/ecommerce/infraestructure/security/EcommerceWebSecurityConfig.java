@@ -18,6 +18,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class EcommerceWebSecurityConfig {
 
 	@Bean
+	@SuppressWarnings("java:S112")
 	public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
