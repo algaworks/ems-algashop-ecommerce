@@ -31,7 +31,6 @@ public class MenuService {
 		return new ShoppingCartModel();
 	}
 
-	//todo cacheable
 	public List<CategoryModel> loadCategories() {
 		try {
 			return categoryClient.findAll().getContent();

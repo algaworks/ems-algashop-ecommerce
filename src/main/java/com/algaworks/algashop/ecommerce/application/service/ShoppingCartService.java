@@ -20,7 +20,6 @@ public class ShoppingCartService {
 		try {
 			return shoppingCartClient.getCurrentShoppingCart();
 		} catch (HttpClientErrorException e) {
-			log.warn("No current ShoppingCart exists.");
 			return new ShoppingCartModel();
 		}
 	}
