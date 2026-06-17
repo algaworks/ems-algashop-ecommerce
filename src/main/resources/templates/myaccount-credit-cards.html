@@ -62,6 +62,9 @@
                                     Add new card
                                 </button>
                             </div>
+                            <div class="alert alert-success hidden" id="creditCardRemovalSuccess" role="alert">
+                                Credit card removed successfully.
+                            </div>
                             <div>
                                 <p th:if="${#lists.isEmpty(creditCards)}" class="js-credit-card-empty">
                                     You do not have saved credit cards yet.
@@ -117,6 +120,33 @@
     <!-- /SECTION -->
 
     <th:block th:insert="~{fragments/credit-card-registration-modal.html}"></th:block>
+
+    <div class="modal fade" id="creditCardRemovalConfirmationModal" tabindex="-1" role="dialog"
+         aria-labelledby="creditCardRemovalConfirmationModalTitle">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="creditCardRemovalConfirmationModalTitle">Remove credit card</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger hidden" id="creditCardRemovalError" role="alert">
+                        An error occurred while trying to remove the credit card. Please try again later.
+                    </div>
+                    <p>Are you sure you want to remove this credit card?</p>
+                    <p>This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="primary-btn order-submit" id="creditCardRemovalConfirm">
+                        Remove card
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </th:block>
 
 <th:block layout:fragment="javascript-extra">

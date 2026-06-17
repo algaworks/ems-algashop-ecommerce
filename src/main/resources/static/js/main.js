@@ -282,22 +282,27 @@
 
     $(document).on('click', '.js-on-click-remove-credit-card', function() {
         let creditCardId = $(this).data('credit-card-id');
+        $('#creditCardRemovalConfirm').data('credit-card-id', creditCardId);
+        $('#creditCardRemovalError').addClass('hidden');
+        $('#creditCardRemovalSuccess').addClass('hidden');
+        $('#creditCardRemovalConfirmationModal').modal('show');
+    });
+
+    $(document).on('click', '#creditCardRemovalConfirm', function() {
+        let creditCardId = $(this).data('credit-card-id');
         let token = $("meta[name='_csrf']").attr("content");
-        let request = {
+
+        $.ajax({
             url: "/my-account/credit-cards/remove/" + creditCardId,
             method: "POST",
-            data: {
-                "_csrf": token
-            }
-        };
-
-        $.ajax(request)
-            .done(function() {
-                refreshCreditCardLists();
-            })
-            .fail(function() {
-                alert("error");
-            });
+            data: { "_csrf": token }
+        }).done(function() {
+            $('#creditCardRemovalConfirmationModal').modal('hide');
+            refreshCreditCardLists();
+            $('#creditCardRemovalSuccess').removeClass('hidden');
+        }).fail(function() {
+            $('#creditCardRemovalError').removeClass('hidden');
+        });
     });
 
     function tokenizeCreditCard() {
