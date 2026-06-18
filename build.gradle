@@ -66,5 +66,5 @@ jar {
 tasks.register('dockerBuild', Exec) {
 	dependsOn("bootJar") //se depender de build rodara os testes
 	workingDir project.rootDir
-	commandLine 'docker', 'build', '.', '-t', 'algaworks/algashop-ecommerce:dev'
+	commandLine 'docker', 'build', '.', '-t', 'algashop/algashop-ecommerce:dev'
 }
