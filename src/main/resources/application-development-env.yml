@@ -8,7 +8,7 @@ algashop:
 spring:
   data:
     redis:
-      host: localhost
+      host: algashop-redis
       port: 6379
       password: redis123
       database: 4

@@ -1,5 +1,5 @@
 algashop:
-  api-url: http://algashop-ecommerce:9999
+  api-url: http://api.algashop.local:9999
   auth-with-alga-security-path: /oauth2/authorization/algashop-ecommerce-web
   payment-provider-public-key: tDBmh0ZiDrmaZ8BVQD7i9UYdcj9KtZUk
   payment-provider-credit-card-token-url: http://fastpay:9995/api/v1/public/tokenized-cards
@@ -37,7 +37,7 @@ spring:
           backend:
             provider: algashop-auth
             client-id: algashop-ecommerce-m2m
-            client-secret: ${ALGASHOP_ECOMMERCE_M2M_CLIENT_SECRET:webintegration123}
+            client-secret: ${ALGASHOP_ECOMMERCE_M2M_CLIENT_SECRET:m2m123}
             authorization-grant-type: client_credentials
             scope:
               - "products:read"
