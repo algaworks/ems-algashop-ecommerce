@@ -100,6 +100,31 @@
                                     </div>
                                 </div>
                                 <div class="order-summary">
+                                    <p><strong>Billing info</strong></p>
+                                    <div class="order-col">
+                                        <div>Name</div>
+                                        <div th:text="|${order.billing.firstName} ${order.billing.lastName}|"></div>
+                                    </div>
+                                    <div class="order-col">
+                                        <div>Document</div>
+                                        <div th:text="${order.billing.document}"></div>
+                                    </div>
+                                    <div class="order-col">
+                                        <div>Email</div>
+                                        <div th:text="${order.billing.email}"></div>
+                                    </div>
+                                    <div class="order-col">
+                                        <div>Phone</div>
+                                        <div th:text="${order.billing.phone}"></div>
+                                    </div>
+                                    <p><strong>Billing address</strong></p>
+                                    <p th:text="${order.billing.address.getAddressLine()}">Avenue XPTO 1000 , House 5622</p>
+                                    <div class="order-col">
+                                        <div>Zipcode</div>
+                                        <div th:text="${order.billing.address.zipCode}"></div>
+                                    </div>
+                                </div>
+                                <div class="order-summary">
                                     <p><strong>Items</strong></p>
                                     <div class="order-products" th:each="item : ${order.items}">
                                         <div class="order-col">
