@@ -1,5 +1,5 @@
 algashop:
-  api-url: http://api.algashop.local:9999
+  api-url: http://algashop-gateway-ecommerce:9999
   auth-with-alga-security-path: /oauth2/authorization/algashop-ecommerce-web
   payment-provider-public-key: tDBmh0ZiDrmaZ8BVQD7i9UYdcj9KtZUk
   payment-provider-credit-card-token-url: http://fastpay:9995/api/v1/public/tokenized-cards
