@@ -48,8 +48,7 @@
                                         th:classappend="${item.unavailable} ? 'shopping-cart-item-unavailable'">
                                         <th scope="row" class="border-0">
                                             <div class="p-2 shopping-cart-item-table-head">
-                                                <img th:src="@{/img/no-picture.png}" decoding="async" width="70" class="img-fluid rounded shadow-sm">
-                                                <div class="ml-3 d-inline-block align-middle">
+                                                <div class="d-inline-block align-middle">
                                                     <h5 class="mb-0">
                                                         <a th:href="|/products/${item.productId}|"
                                                            th:text="${item.name}" class="text-dark d-inline-block align-middle shopping-cart-item-name">PC</a>

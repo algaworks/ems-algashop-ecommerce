@@ -12,9 +12,6 @@
     <div class="cart-dropdown">
         <div class="cart-list">
             <div class="product-widget" th:each="item: ${shoppingCart.items}">
-                <div class="product-img">
-                    <img th:src="@{/img/no-picture.png}" decoding="async">
-                </div>
                 <div class="product-body">
                     <h3 class="product-name"><a th:href="|/products/${item.productId}/${item.productId}|"
                                                 th:text="${item.name}"></a></h3>
