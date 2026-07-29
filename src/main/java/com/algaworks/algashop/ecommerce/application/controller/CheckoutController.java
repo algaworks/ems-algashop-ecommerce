@@ -52,14 +52,22 @@ public class CheckoutController {
 	private final EcommerceProperties ecommerceProperties;
 
 	@GetMapping("/checkout")
-	public ModelAndView checkout() {
+	public ModelAndView checkout(RedirectAttributes redirectAttributes) {
+		ShoppingCartModel shoppingCart;
+
 		try {
-			if (shoppingCartService.findCurrentShoppingCart().getTotalItems() < 1) {
-				return new ModelAndView(REDIRECT_SHOPPING_CART);
-			}
-		} catch (Exception _) {
-			log.error("Error loading shopping cart", new Exception());
+			shoppingCart = shoppingCartService.findCurrentShoppingCart();
+		} catch (Exception e) {
+			log.error("Error loading shopping cart", e);
 			return new ModelAndView(REDIRECT_SHOPPING_CART);
+		}
+
+		if (shoppingCart.getTotalItems() < 1) {
+			return new ModelAndView(REDIRECT_SHOPPING_CART);
+		}
+
+		if (shoppingCart.containsUnavailableItems()) {
+			return redirectToCartWithUnavailableItemsAlert(redirectAttributes);
 		}
 
 		CustomerModel customerModel;
@@ -93,9 +101,16 @@ public class CheckoutController {
 
 	@PostMapping("/checkout")
 	public ModelAndView doCheckout(@Valid @ModelAttribute("checkoutForm") CheckoutForm checkoutForm,
-								   BindingResult bindingResult, @AuthenticationPrincipal OAuth2User userDetails) {
-		if (shoppingCartService.findCurrentShoppingCart().getTotalItems() < 1) {
+								   BindingResult bindingResult, @AuthenticationPrincipal OAuth2User userDetails,
+								   RedirectAttributes redirectAttributes) {
+		ShoppingCartModel shoppingCart = shoppingCartService.findCurrentShoppingCart();
+
+		if (shoppingCart.getTotalItems() < 1) {
 			return new ModelAndView(REDIRECT_SHOPPING_CART);
+		}
+
+		if (shoppingCart.containsUnavailableItems()) {
+			return redirectToCartWithUnavailableItemsAlert(redirectAttributes);
 		}
 
 		if (bindingResult.hasErrors()) {
@@ -112,9 +127,19 @@ public class CheckoutController {
 
 		CheckoutModel input = buildCheckoutInput(checkoutForm, creditCardId, userDetails);
 
-		OrderModel checkout = checkoutClient.checkout(input);
+		try {
+			OrderModel checkout = checkoutClient.checkout(input);
+			return new ModelAndView("redirect:/my-account/orders/" + checkout.getId());
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return checkout(checkoutForm, AlertMessage.danger("Order could not be placed. Please try again."));
+		}
+	}
 
-		return new ModelAndView("redirect:/my-account/orders/" + checkout.getId());
+	private ModelAndView redirectToCartWithUnavailableItemsAlert(RedirectAttributes redirectAttributes) {
+		redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger(
+				"Some items in your cart are no longer available. Remove them to continue with your order."));
+		return new ModelAndView(REDIRECT_SHOPPING_CART);
 	}
 
 	@GetMapping("/buy-now/{productId}")
@@ -127,12 +152,12 @@ public class CheckoutController {
 		}
 
 		if (!Boolean.TRUE.equals(product.getInStock())) {
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Product is out of stock."));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger("Product is out of stock."));
 			return redirectToProduct(product);
 		}
 
 		if (quantity == null || quantity < 1) {
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Quantity must be greater than zero."));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger("Quantity must be greater than zero."));
 			return redirectToProduct(product);
 		}
 
@@ -180,7 +205,7 @@ public class CheckoutController {
 		}
 
 		if (!Boolean.TRUE.equals(product.getInStock())) {
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Product is out of stock."));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger("Product is out of stock."));
 			return redirectToProduct(product);
 		}
 
@@ -358,18 +383,18 @@ public class CheckoutController {
 
 	private ProductModel loadProduct(String productId, RedirectAttributes redirectAttributes) {
 		if (!StringUtils.hasText(productId)) {
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Product not found."));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger("Product not found."));
 			return null;
 		}
 
 		try {
 			return productClient.findById(productId);
 		} catch (HttpClientErrorException.NotFound e) {
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger("Product not found."));
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger("Product not found."));
 			return null;
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
-			redirectAttributes.addFlashAttribute("alertMessage", AlertMessage.danger(
+			redirectAttributes.addFlashAttribute(ALERT_MESSAGE_KEY, AlertMessage.danger(
 					"An unknown error occurred while trying to load the product. Please try again later."));
 			return null;
 		}

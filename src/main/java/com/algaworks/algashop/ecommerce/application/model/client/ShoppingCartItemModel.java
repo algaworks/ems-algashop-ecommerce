@@ -1,5 +1,6 @@
 package com.algaworks.algashop.ecommerce.application.model.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,9 @@ public class ShoppingCartItemModel {
 	private Integer quantity;
 	private BigDecimal totalAmount;
 	private Boolean available;
+
+	@JsonIgnore
+	public boolean isUnavailable() {
+		return Boolean.FALSE.equals(available);
+	}
 }

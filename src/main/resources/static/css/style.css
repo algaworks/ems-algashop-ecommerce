@@ -2331,6 +2331,26 @@ textarea.input {
     align-items: center;
 }
 
+.shopping-cart-item-unavailable > th,
+.shopping-cart-item-unavailable > td {
+    color: #8D99AE;
+}
+
+.shopping-cart-item-unavailable .shopping-cart-item-name {
+    color: #8D99AE;
+    text-decoration: line-through;
+}
+
+.shopping-cart-item-unavailable img {
+    filter: grayscale(1);
+    opacity: .6;
+}
+
+.shopping-cart-item-unavailable-label {
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
 .shopping-cart-detail-order-summary {
     display:flex;
 }

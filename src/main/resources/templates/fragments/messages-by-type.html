@@ -3,7 +3,7 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <body>
-<th:block th:if="${alertMessage != null}" th:switch="${alertMessage.type?.name()}">
+<th:block th:fragment="messages" th:if="${alertMessage != null}" th:switch="${alertMessage.type?.name()}">
     <th:block th:case="'INFO'">
         <div class="alert alert-info" role="alert" th:text="${alertMessage.content}"></div>
     </th:block>

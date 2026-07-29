@@ -68,7 +68,7 @@ class CheckoutControllerTest {
 		when(customerRestClient.getMyProfile()).thenReturn(customer());
 		when(creditCardClient.findAll()).thenReturn(List.of(creditCard));
 
-		ModelAndView modelAndView = controller.checkout();
+		ModelAndView modelAndView = controller.checkout(new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("checkout");
 		CheckoutForm form = (CheckoutForm) modelAndView.getModel().get("checkoutForm");
@@ -90,7 +90,7 @@ class CheckoutControllerTest {
 		when(creditCardClient.findById("card-1")).thenReturn(creditCard("card-1"));
 		when(checkoutClient.checkout(any(CheckoutModel.class))).thenReturn(order("order-1"));
 
-		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
 		verify(creditCardClient).findById("card-1");
@@ -110,7 +110,7 @@ class CheckoutControllerTest {
 		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
 		when(checkoutClient.checkout(any(CheckoutModel.class))).thenReturn(order("order-1"));
 
-		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
 		verify(checkoutClient).checkout(inputCaptor.capture());
@@ -136,7 +136,7 @@ class CheckoutControllerTest {
 		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
 		when(checkoutClient.checkout(any(CheckoutModel.class))).thenReturn(order("order-1"));
 
-		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/my-account/orders/order-1");
 		verify(checkoutClient).checkout(inputCaptor.capture());
@@ -157,7 +157,7 @@ class CheckoutControllerTest {
 
 		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
 
-		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("checkout");
 		AlertMessage alertMessage = (AlertMessage) modelAndView.getModel().get("alertMessage");
@@ -175,13 +175,59 @@ class CheckoutControllerTest {
 		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
 		when(creditCardClient.findById("card-1")).thenThrow(new RuntimeException("not found"));
 
-		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User());
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
 
 		assertThat(modelAndView.getViewName()).isEqualTo("checkout");
 		AlertMessage alertMessage = (AlertMessage) modelAndView.getModel().get("alertMessage");
 		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
 		verify(creditCardClient, never()).register(any());
 		verify(checkoutClient, never()).checkout(any(CheckoutModel.class));
+	}
+
+	@Test
+	void shouldRedirectToShoppingCartWithAlertWhenCheckoutPageHasUnavailableItems() {
+		CheckoutController controller = controller();
+		RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCartWithUnavailableItem());
+
+		ModelAndView modelAndView = controller.checkout(redirectAttributes);
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/shopping-cart");
+		AlertMessage alertMessage = (AlertMessage) redirectAttributes.getFlashAttributes().get("alertMessage");
+		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
+		verifyNoInteractions(customerRestClient);
+	}
+
+	@Test
+	void shouldRedirectToShoppingCartWithAlertWhenPlacingOrderWithUnavailableItems() {
+		CheckoutController controller = controller();
+		CheckoutForm form = checkoutForm(PaymentMethod.GATEWAY_BALANCE);
+		RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCartWithUnavailableItem());
+
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), redirectAttributes);
+
+		assertThat(modelAndView.getViewName()).isEqualTo("redirect:/shopping-cart");
+		AlertMessage alertMessage = (AlertMessage) redirectAttributes.getFlashAttributes().get("alertMessage");
+		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
+		verifyNoInteractions(checkoutClient);
+	}
+
+	@Test
+	void shouldReturnCheckoutWithAlertWhenOrderingFails() {
+		CheckoutController controller = controller();
+		CheckoutForm form = checkoutForm(PaymentMethod.GATEWAY_BALANCE);
+
+		when(shoppingCartService.findCurrentShoppingCart()).thenReturn(shoppingCart());
+		when(checkoutClient.checkout(any(CheckoutModel.class))).thenThrow(new RuntimeException("ordering unavailable"));
+
+		ModelAndView modelAndView = controller.doCheckout(form, bindingResult(form), oauth2User(), new RedirectAttributesModelMap());
+
+		assertThat(modelAndView.getViewName()).isEqualTo("checkout");
+		AlertMessage alertMessage = (AlertMessage) modelAndView.getModel().get("alertMessage");
+		assertThat(alertMessage.getType()).isEqualTo(AlertMessage.Type.DANGER);
 	}
 
 	@Test
@@ -363,6 +409,20 @@ class CheckoutControllerTest {
 		ShoppingCartModel shoppingCart = new ShoppingCartModel();
 		shoppingCart.setTotalItems(1);
 		shoppingCart.setTotalAmount(new BigDecimal("100.00"));
+		return shoppingCart;
+	}
+
+	private ShoppingCartModel shoppingCartWithUnavailableItem() {
+		ShoppingCartModel shoppingCart = shoppingCart();
+		ShoppingCartItemModel item = new ShoppingCartItemModel();
+		item.setId("item-1");
+		item.setProductId("product-1");
+		item.setName("Product Name");
+		item.setPrice(new BigDecimal("100.00"));
+		item.setQuantity(1);
+		item.setTotalAmount(new BigDecimal("100.00"));
+		item.setAvailable(false);
+		shoppingCart.setItems(List.of(item));
 		return shoppingCart;
 	}
 
