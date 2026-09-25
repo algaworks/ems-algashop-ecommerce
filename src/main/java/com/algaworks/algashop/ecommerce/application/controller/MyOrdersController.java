@@ -92,7 +92,6 @@ public class MyOrdersController {
 		return false;
 	}
 
-	//todo SSE
 	@GetMapping("/my-account/orders/{orderCode}/check")
 	public ResponseEntity<Void> checkOrderIsReady(@PathVariable String orderCode, @RequestParam(required = false) String currentOrderStatus) {
 		try {

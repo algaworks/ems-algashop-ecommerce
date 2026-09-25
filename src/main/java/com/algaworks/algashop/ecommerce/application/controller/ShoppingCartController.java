@@ -48,7 +48,6 @@ public class ShoppingCartController {
 
 	@PostMapping("/shopping-cart/remove-item/{itemId}")
 	public ResponseEntity<Void> removeItemByItemId(@PathVariable String itemId) {
-		//todo load cart
 		shoppingCartClient.removeItem(itemId);
 		return ResponseEntity.noContent().build();
 	}
@@ -58,7 +57,6 @@ public class ShoppingCartController {
 									@PathVariable String productId,
 									@RequestParam Integer quantity,
 									RedirectAttributes redirectAttributes) {
-		//todo load cart
 		ProductModel productModel = productClient.findById(productId);
 
 		try {

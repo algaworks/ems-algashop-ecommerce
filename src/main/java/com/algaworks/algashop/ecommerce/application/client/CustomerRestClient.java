@@ -43,7 +43,7 @@ public class CustomerRestClient {
 			return responseEntity.getBody();
 		} catch (RestClientResponseException e) {
 			log.error("Error when tried to create Customer:\n{}\n", e.getResponseBodyAsString());
-			throw e; //todo integration gateway 502 exception
+			throw e;
 		}
 	}
 

@@ -29,8 +29,6 @@ public class PaymentModel {
 
 	private String status;
 
-	private PixInfoModel pixInfo;
-
 	private String gatewayPaymentCode;
 
 }

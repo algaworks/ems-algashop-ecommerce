@@ -13,7 +13,7 @@ public class LoginLogoutController {
 	private final AlgaShopSecurityService algaShopSecurityService;
 	private final EcommerceProperties ecommerceProperties;
 
-	@GetMapping("/logout") //todo deslogado?
+	@GetMapping("/logout")
 	public String logout() {
 		if (algaShopSecurityService.getAuthentication().isPresent()) {
 			return "logout";
@@ -22,14 +22,14 @@ public class LoginLogoutController {
 		}
 	}
 
-	@GetMapping("/logged-out") //todo deslogado?
+	@GetMapping("/logged-out")
 	public String loggedOut() {
 		return "redirect:/";
 	}
 
 	@GetMapping("/login")
 	public String login() {
-		if (algaShopSecurityService.getAuthentication().isEmpty()) { //todo get clientname
+		if (algaShopSecurityService.getAuthentication().isEmpty()) {
 			return "redirect:" + ecommerceProperties.getAuthWithAlgaSecurityPath();
 		} else {
 			return "redirect:/";
